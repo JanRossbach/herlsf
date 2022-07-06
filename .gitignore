@@ -1,0 +1,6 @@
+.lsp
+.clj-kondo
+*.class
+*.jar
+.cpcache
+resources/db/hike/*
