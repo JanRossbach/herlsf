@@ -1,0 +1,58 @@
+#+author: Jan Roßbach
+#+title: HER-LSF
+
+* HER-LSF-FX
+
+This program is a pure clojure version of HER-LSF using cljfx for the GUI.
+
+** Dependencies
+
+- Java >=11
+- Clojure cli
+- Optional: babashka (for build tasks)
+
+** Install
+
+Currently it is only possible to build the application from source.
+After cloning the repository, you can use
+
+#+begin_src sh
+  bb build
+#+end_src
+
+or, in case you do not have babashka installed
+
+#+begin_src
+  clojure -M:native-image --no-fallback
+#+end_src
+
+
+to compile a native image with graalvm.
+
+If this should fail for any reason, I would appreciate a ticket about it. As a fallback
+you can leave out the --no-fallback option to generate a slower version or generate
+a jar file with
+
+#+begin_src sh
+  bb uberjar
+#+end_src
+
+or
+
+#+begin_src sh
+  clojure -X:uberjar
+#+end_src
+
+** Run
+
+If you just want to start the application without building it, you can use
+
+#+begin_src sh
+  bb main
+#+end_src
+
+or
+
+#+begin_src
+ clojure -M:main
+#+end_src
