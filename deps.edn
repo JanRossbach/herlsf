@@ -1,7 +1,6 @@
 {:paths ["src" "resources"]
  :deps
- {
-  org.clojure/clojure #:mvn{:version "1.11.1"}
+ {org.clojure/clojure #:mvn{:version "1.11.1"}
   org.clojure/test.check {:mvn/version "1.1.1"}
   provisdom/spectomic {:mvn/version "1.0.78"}
   cljfx/cljfx {:mvn/version "1.7.20"}
@@ -10,4 +9,18 @@
   com.rpl/specter {:mvn/version "1.1.4"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}}
  :aliases
- {:dev {}}}
+ {:main {:main-opts ["-m" "herlsf.main"]}
+  :uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
+            :exec-fn hf.depstar/uberjar
+            :exec-args {:aot true
+                        :jar "herlsf.jar"
+                        :main-class herlsf.core}}
+  :native-image
+   {:main-opts ["-m" "clj.native-image" "herlsf.core"
+                "--initialize-at-build-time"
+                "-H:Name=herlsf"]
+    :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+    :extra-deps
+    {clj.native-image/clj.native-image
+     {:git/url "https://github.com/taylorwood/clj.native-image.git"
+      :sha "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}}}

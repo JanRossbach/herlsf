@@ -4,3 +4,4 @@
 *.jar
 .cpcache
 resources/db/hike/*
+.nrepl-port
