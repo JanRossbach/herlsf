@@ -1,59 +1,67 @@
 (ns herlsf.gui.core
   (:require
-   [clojure.repl :refer [doc]]
-   [clojure.pprint :refer [pprint]]
    [cljfx.api :as fx]
-   [cljfx.css :as css]
-   [herlsf.core :as core]
-   [herlsf.db.interface :as db]
+   [datahike.api :as d]
+   [clojure.core.cache :as cache]
+   [herlsf.gui.events :as events]
+   [herlsf.gui.views :as views]
+   [herlsf.db.xml :as xml]
+   [herlsf.gui.style :refer [style]]
    ))
 
-(def style
-  (let [text (fn [size weight]
-               {:-fx-text-fill "#111"
-                :-fx-wrap-text true
-                :-fx-font-weight weight
-                :-fx-font-size size})]
 
-    (css/register
-     ::style
-     {".app-label" (text 25 :normal)})))
+(def db-cfg {:store {:backend :file
+                     :path "resources/db/hike"}})
+
+
 
 (defonce *state
-  (atom {:name "HER-LSF"
-         :style style}))
+  (atom (fx/create-context
+         {:application/name "HER-LSF"
+          :application/style style
+          :db/conn (d/connect db-cfg)
+          :style style}
+         cache/lru-cache-factory)))
 
-(defn root [{:keys [name style]}]
-  {:fx/type :stage
-   :showing true
-   :scene {:fx/type :scene
-           :stylesheets [(::css/url style)]
-           :root {:fx/type :v-box
-                  :children
-                  [{:fx/type :label
-                    :style-class "app-label"
-                    :text "Label with some text"}
-                   {:fx/type :label
-                    :style-class "app-label"
-                    :text "Another label"}]}}})
 
-(defn map-event-handler
-  [e]
-  )
+(defn xml-effect
+  [^String v dispatch!]
+  (try (let [transaction (xml/xml->entities v)]
+         (dispatch! {:event/type :transact
+                     :transaction transaction}))
+       (catch Exception e
+         (throw (ex-info (str "XML Import failed with exception: " e)
+                         {:event-value v})))))
+
+(def event-handler
+  (-> events/event-handler
+      (fx/wrap-co-effects
+       {:fx/context (fx/make-deref-co-effect *state)})
+      (fx/wrap-effects
+       {:context (fx/make-reset-effect *state)
+        :dispatch fx/dispatch-effect
+        :transact (fn [v _] (d/transact (:conn @*state) (:transaction v)))
+        :xml xml-effect})))
 
 (def renderer
   (fx/create-renderer
-   :middleware (fx/wrap-map-desc assoc :fx/type root)
-   :opts {:fx.opt/map-event-handler map-event-handler}))
-
+   :middleware (comp fx/wrap-context-desc
+                  (fx/wrap-map-desc (fn [_] {:fx/type views/root})))
+   :opts {:fx.opt/type->lifecycle #(or (fx/keyword->lifecycle %)
+                                       (fx/fn->lifecycle-with-context %))
+          :fx.opt/map-event-handler event-handler}))
 
 (defn run
   []
   (fx/mount-renderer *state renderer))
 
+;; REPL
+
 (comment
 
   (run)
+
+  (renderer)
 
   ;; to iterate during development on style, add a watch to var that updates style in app
   ;; state...

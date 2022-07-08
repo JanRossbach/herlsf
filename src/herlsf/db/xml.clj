@@ -1,7 +1,7 @@
-(ns herlsf.xml
+(ns herlsf.db.xml
   (:require
    [clojure.spec.alpha :as spec]
-   [herlsf.db.interface :as db]
+   [herlsf.db.schema :as db]
    [clojure.data.xml :refer [parse]]
    [clojure.string :as string]
    [com.rpl.specter :as s]))
@@ -125,7 +125,7 @@
   "Takes an xml string and returns a collection of
   app.db/entities. This can be put into the database as a transaction."
   [src]
-  {:post [(spec/valid? :herlsf.db.schema/entities %)]}
+  {:post [(spec/valid? ::db/entities %)]}
   (let [s (string/replace src #"\n[ ]*|\r" "")
         reader (java.io.StringReader. s)
         data (->> reader

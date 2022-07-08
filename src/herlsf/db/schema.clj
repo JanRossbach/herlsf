@@ -29,8 +29,8 @@
 ;; Vorlesungzeit
 
 (spec/def :vzeit/id (spec/and int? #(> % 0)))
-(spec/def :vzeit/wochentag string?)
-;{"Montag" "Dienstag" "Mittwoch" "Donnerstag" "Freitag" "Samstag" "Sonntag"}
+(spec/def :vzeit/wochentag #{"Montag" "Dienstag" "Mittwoch" "Donnerstag" "Freitag" "Samstag" "Sonntag" "-"})
+
 (spec/def :vzeit/start-zeit string?)
 (spec/def :vzeit/end-zeit string?)
 (spec/def :vzeit/start-datum string?)
