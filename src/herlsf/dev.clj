@@ -13,6 +13,15 @@
 
 (doc fx/sub-ctx)
 
+(doc d/db)
+
+(doc d/listen )
+
+(doc fx/create-app)
+
+(gui/run-app)
+
+((:renderer (gui/run-app)))
 
 (def conn (d/connect {:store {:backend :file
                                 :path "resources/db/hike"}}))
@@ -55,6 +64,19 @@
      [?v :lehrperson/name "Klau"]
      [?v :lehrperson/pers-id ?id]]
    @conn)
+
+;; REPL
+
+(comment
+
+  (run-app)
+
+  ;; to iterate during development on style, add a watch to var that updates style in app
+  ;; state...
+  (add-watch #'styles/style :refresh-app (fn [_ _ _ _] (swap! *state assoc :style styles/style)))
+  ;; ... and remove it when you are done
+  (remove-watch #'styles/style :refresh-app))
+
 
 (count (d/q '[:find ?n ?m ?time ?tag ?s
             :where

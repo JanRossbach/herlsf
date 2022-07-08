@@ -20,3 +20,10 @@
                   (.setTitle "Open File"))]
     (when-let [file (.showOpenDialog chooser window)]
       {:xml (slurp file)})))
+
+(defmethod event-handler ::hello
+  [{:keys [fx/context]}]
+  {:context (fx/swap-context
+             context
+             (fn [c]
+               (update c :counter inc)))})

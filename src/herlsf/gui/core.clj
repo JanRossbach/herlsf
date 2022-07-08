@@ -6,23 +6,28 @@
    [herlsf.gui.events :as events]
    [herlsf.gui.views :as views]
    [herlsf.db.xml :as xml]
-   [herlsf.gui.style :refer [style]]
+   [herlsf.gui.style :as styles]
    ))
 
 
 (def db-cfg {:store {:backend :file
                      :path "resources/db/hike"}})
 
+(def conn (d/connect db-cfg))
 
+(def initial-state
+  {:name "HER-LSF"
+   :db @conn
+   :style styles/style
+   :counter 0})
 
-(defonce *state
+(def *state
   (atom (fx/create-context
-         {:application/name "HER-LSF"
-          :application/style style
-          :db/conn (d/connect db-cfg)
-          :style style}
-         cache/lru-cache-factory)))
+         initial-state
+         #(cache/lru-cache-factory % :threshold 4096))))
 
+;; Listen to changes on the datahike connection and update the state atom
+(d/listen conn :ui (fn [_] (swap! *state fx/swap-context assoc :db @conn)))
 
 (defn xml-effect
   [^String v dispatch!]
@@ -33,40 +38,10 @@
          (throw (ex-info (str "XML Import failed with exception: " e)
                          {:event-value v})))))
 
-(def event-handler
-  (-> events/event-handler
-      (fx/wrap-co-effects
-       {:fx/context (fx/make-deref-co-effect *state)})
-      (fx/wrap-effects
-       {:context (fx/make-reset-effect *state)
-        :dispatch fx/dispatch-effect
-        :transact (fn [v _] (d/transact (:conn @*state) (:transaction v)))
-        :xml xml-effect})))
-
-(def renderer
-  (fx/create-renderer
-   :middleware (comp fx/wrap-context-desc
-                  (fx/wrap-map-desc (fn [_] {:fx/type views/root})))
-   :opts {:fx.opt/type->lifecycle #(or (fx/keyword->lifecycle %)
-                                       (fx/fn->lifecycle-with-context %))
-          :fx.opt/map-event-handler event-handler}))
-
-(defn run
-  []
-  (fx/mount-renderer *state renderer))
-
-;; REPL
-
-(comment
-
-  (run)
-
-  (renderer)
-
-  ;; to iterate during development on style, add a watch to var that updates style in app
-  ;; state...
-  (add-watch #'style :refresh-app (fn [_ _ _ _] (swap! *state assoc :style style)))
-  ;; ... and remove it when you are done
-  (remove-watch #'style :refresh-app)
-
-)
+(defn run-app []
+  (fx/create-app
+   *state
+   :event-handler events/event-handler
+   :effects {:transact (fn [tx-data _] (d/transact conn tx-data))
+             :xml xml-effect}
+   :desc-fn (fn [_] {:fx/type views/root})))

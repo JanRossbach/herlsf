@@ -1,8 +1,8 @@
 (ns herlsf.core
   (:require
-   [herlsf.gui.core :refer [run]])
+   [herlsf.gui.core :as gui])
   (:gen-class))
 
 (defn -main
   []
-  (run))
+  (gui/run-app))

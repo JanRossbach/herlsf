@@ -1,6 +1,7 @@
 (ns herlsf.gui.style
   (:require
-   [cljfx.css :as css]))
+   [cljfx.css :as css])
+  )
 
 (def style
   (let [text (fn [size weight]
@@ -11,4 +12,4 @@
 
     (css/register
      ::style
-     {".app-label" (text 25 :normal)})))
+     {".app-label" (text 52 :normal)})))
