@@ -12,3 +12,7 @@
   (fx/sub-ctx context query-sub
               '[:find ?id ?name
                 :where [?id :veranstaltung/name ?name]]))
+
+(defn active-panel
+  [context]
+  (fx/sub-val context :active-panel))

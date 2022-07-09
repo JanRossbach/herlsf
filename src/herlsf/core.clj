@@ -18,6 +18,7 @@
 (def initial-state
   {:name "HER-LSF"
    :db @conn
+   :active-panel [:home]
    :style styles/style
    :counter 0})
 

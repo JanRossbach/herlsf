@@ -10,7 +10,7 @@
 (defmulti event-handler :event/type)
 
 (defmethod event-handler :default
-  [{:keys [:fx/event]}]
+  [event]
   (prn event))
 
 (defmethod event-handler ::open-xml-file
@@ -31,4 +31,12 @@
 (defmethod event-handler ::select-veranstaltung
   [{:keys [:fx/event]}]
   (let [[id name] event]
+    (prn event)
     (prn (str "ID: " id " Name: " name))))
+
+(defmethod event-handler ::navigate
+  [{:keys [:fx/context target]}]
+  {:context (fx/swap-context
+             context
+             (fn [c]
+               (assoc c :active-panel target)))})
