@@ -27,3 +27,8 @@
              context
              (fn [c]
                (update c :counter inc)))})
+
+(defmethod event-handler ::select-veranstaltung
+  [{:keys [:fx/event]}]
+  (let [[id name] event]
+    (prn (str "ID: " id " Name: " name))))
