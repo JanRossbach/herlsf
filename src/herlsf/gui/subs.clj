@@ -1,6 +1,7 @@
 (ns herlsf.gui.subs
   (:require
    [cljfx.api :as fx]
+   ;[com.rpl.specter :as s]
    [datahike.api :as d]))
 
 (defn- query-sub [context query & inputs]

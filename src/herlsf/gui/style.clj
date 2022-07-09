@@ -1,7 +1,6 @@
 (ns herlsf.gui.style
   (:require
-   [cljfx.css :as css])
-  )
+   [cljfx.css :as css]))
 
 (def style
   (let [text (fn [size weight]

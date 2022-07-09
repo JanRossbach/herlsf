@@ -1,7 +1,8 @@
 {:tasks
  {uberjar (clojure "-X:uberjar")
   build (clojure "-M:native-image --no-fallback")
-  clean (shell "rm -f ./*.txt herlsf herlsf.jar")
+  ;clean (shell "rm -f ./*.txt herlsf herlsf.jar")
   main (clojure "-M:main")
+  start (shell "java -cp herlsf.jar clojure.main -m herlsf.core")
   build:clean (do (run 'clean)
                   (run 'build))}}

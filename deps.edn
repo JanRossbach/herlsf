@@ -10,10 +10,10 @@
   org.kordamp.bootstrapfx/bootstrapfx-core {:mvn/version "0.4.0"}
   org.clojure/data.xml {:mvn/version "0.2.0-alpha6"}}
  :aliases
- {:main {:main-opts ["-m" "herlsf.main"]}
+ {:main {:main-opts ["-m" "herlsf.core"]}
   :uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
             :exec-fn hf.depstar/uberjar
-            :exec-args {:aot true
+            :exec-args {:aot false
                         :jar "herlsf.jar"
                         :main-class herlsf.core}}
   :native-image

@@ -6,10 +6,12 @@
    [datahike.api :as d]
    [com.rpl.specter :as s]
    [clojure.data.xml :refer [parse]]
-   [herlsf.gui.core :as gui]
-   [herlsf.db.schema :as db]
-   [herlsf.db.xml :refer [xml->entities xmlmap->map]]
+   [herlsf.core :as gui]
+   [herlsf.schema :as db]
+   [herlsf.xml :refer [xml->entities xmlmap->map]]
    [cljfx.api :as fx]))
+
+(comment
 
 (doc fx/sub-ctx)
 
@@ -67,15 +69,13 @@
 
 ;; REPL
 
-(comment
-
   (run-app)
 
   ;; to iterate during development on style, add a watch to var that updates style in app
   ;; state...
   (add-watch #'styles/style :refresh-app (fn [_ _ _ _] (swap! *state assoc :style styles/style)))
   ;; ... and remove it when you are done
-  (remove-watch #'styles/style :refresh-app))
+  (remove-watch #'styles/style :refresh-app)
 
 
 (count (d/q '[:find ?n ?m ?time ?tag ?s
@@ -92,3 +92,5 @@
             [?v :veranstaltung/name ?n]
             [?w :veranstaltung/name ?m]]
           @conn))
+
+)
