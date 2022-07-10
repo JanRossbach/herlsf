@@ -10,7 +10,6 @@
   (:import [org.kordamp.bootstrapfx BootstrapFX]))
 
 
-
 (defn veranstaltungen-list-view [{:keys [fx/context]}]
   {:fx/type list-view/with-selection-props
    :props {:selection-mode :single
@@ -22,7 +21,7 @@
                                       :text (str name)})}
           :items (fx/sub-ctx context subs/alle-veranstaltungen)}})
 
-(def table-view
+(defn table-view [_]
   {:fx/type :table-view
    :row-factory {:fx/cell-type :table-row
                  :describe (fn [x]
@@ -41,7 +40,28 @@
                                          {:style {:-fx-background-color i}})}}]
    :items [:red :green :blue "#ccc4" "#ccc4"]})
 
-(defn root [{:keys [fx/context] :as ctx}]
+(def tabs
+  [
+   {:name "Veranstaltung" :view veranstaltungen-list-view}
+   {:name "Räume" :view table-view}
+   ])
+
+
+(defn tab-item
+  [{:keys [name view]}]
+  {:fx/type :tab
+   :text name
+   :closable false
+   :content {:fx/type view}})
+
+(def main-bar
+  {:fx/type :tab-pane
+   :pref-width 960
+   :pref-height 1024
+   :tabs (mapv tab-item tabs)})
+
+
+(defn root [{:keys [fx/context]}]
   {:fx/type :stage
    :showing true
    :title "HER-LSF"
@@ -52,15 +72,5 @@
                   :fill-width true
                   :spacing 5
                   :children [{:fx/type menubar/menubar}
-                             {:fx/type :tab-pane
-                              :pref-width 960
-                              :pref-height 1024
-                              :tabs [{:fx/type :tab
-                                      :text "Veranstaltungen"
-                                      :closable false
-                                      :content {:fx/type veranstaltungen-list-view}}
-                                     {:fx/type :tab
-                                      :text "Räume"
-                                      :closable false
-                                      :content table-view}]}
+                             main-bar
                              {:fx/type (buttons/button-row (fx/sub-val context :active-panel))}]}}})
