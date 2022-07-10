@@ -13,6 +13,8 @@
               '[:find ?id ?name
                 :where [?id :veranstaltung/name ?name]]))
 
-(defn active-panel
-  [context]
-  (fx/sub-val context :active-panel))
+
+(defn active-view
+  [context panel]
+  (let [panels (fx/sub-val context :panels)]
+    (:active-view (panel panels))))
