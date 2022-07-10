@@ -6,8 +6,7 @@
 
 (defmulti button-row (fn [[panel-kw]] panel-kw))
 
-(defn home-buttons
-  [{:keys [fx/context]}]
+(def home-buttons
   {:fx/type :h-box
    :spacing 5
    :children
@@ -29,15 +28,14 @@
 
 (defmethod button-row :home [_] home-buttons)
 
-(defmethod button-row
-  :other
-  [_]
-  (fn [{:keys [fx/context]}]
-    {:fx/type :h-box
-     :spacing 5
-     :children
-     [{:fx/type :button
-       :text "Success"
-       :style-class ["btn" "btn-success"]
-       :on-action {:event/type ::events/navigate
-                   :target [:home]}}]}))
+(def other-buttons
+  {:fx/type :h-box
+   :spacing 5
+   :children
+   [{:fx/type :button
+     :text "Success"
+     :style-class ["btn" "btn-success"]
+     :on-action {:event/type ::events/navigate
+                 :target [:home]}}]})
+
+(defmethod button-row :other [_] other-buttons)

@@ -44,6 +44,7 @@
   [
    {:name "Veranstaltung" :view veranstaltungen-list-view}
    {:name "Räume" :view table-view}
+   {:name "Konflikte" :view table-view}
    ])
 
 
@@ -73,4 +74,4 @@
                   :spacing 5
                   :children [{:fx/type menubar/menubar}
                              main-bar
-                             {:fx/type (buttons/button-row (fx/sub-val context :active-panel))}]}}})
+                             (buttons/button-row (fx/sub-val context :active-panel))]}}})
