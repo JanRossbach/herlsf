@@ -1,8 +1,10 @@
-(ns herlsf.gui.views.button-row
+(ns herlsf.gui.panels.veranstaltungen
   (:require
+   [cljfx.api :as fx]
+   [cljfx.ext.list-view :as list-view]
    [herlsf.gui.subs :as subs]
    [herlsf.gui.events :as events]
-   [cljfx.api :as fx]))
+   ))
 
 (defmulti button-row (fn [[panel-kw]] panel-kw))
 
@@ -39,3 +41,14 @@
                  :target [:home]}}]})
 
 (defmethod button-row :other [_] other-buttons)
+
+(defn root [{:keys [fx/context]}]
+  {:fx/type list-view/with-selection-props
+   :props {:selection-mode :single
+           :on-selected-item-changed {:event/type ::events/select-veranstaltung}}
+   :desc {:fx/type :list-view
+          :cell-factory {:fx/cell-type :list-cell
+                         :describe (fn [[_ name]]
+                                     {:style-class "p"
+                                      :text (str name)})}
+          :items (fx/sub-ctx context subs/alle-veranstaltungen)}})

@@ -21,22 +21,27 @@
     (when-let [file (.showOpenDialog chooser window)]
       {:xml (slurp file)})))
 
-(defmethod event-handler ::hello
-  [{:keys [fx/context]}]
-  {:context (fx/swap-context
-             context
-             (fn [c]
-               (update c :counter inc)))})
-
 (defmethod event-handler ::select-veranstaltung
   [{:keys [:fx/event]}]
   (let [[id name] event]
-    (prn event)
     (prn (str "ID: " id " Name: " name))))
 
 (defmethod event-handler ::navigate
-  [{:keys [:fx/context target]}]
+  [{:keys [:fx/context panel new-view]}]
   {:context (fx/swap-context
              context
              (fn [c]
-               (assoc c :active-panel target)))})
+               (update-in c [:panels panel]
+                          (fn [{:keys [history active-view]}]
+                            {:history (conj history active-view)
+                             :active-view new-view}))))})
+
+(defmethod event-handler ::navigate-back
+  [{:keys [fx/context panel]}]
+  {:context (fx/swap-context
+             context
+             (fn [c]
+               (update-in c [:panels panel]
+                          (fn [{:keys [history]}]
+                            {:history (pop history)
+                             :active-view (peek history)}))))})

@@ -4,7 +4,7 @@
    [datahike.api :as d]
    [clojure.core.cache :as cache]
    [herlsf.gui.events :as events]
-   [herlsf.gui.views.core :as views]
+   [herlsf.gui.views :as views]
    [herlsf.xml :as xml]
    [herlsf.gui.style :as styles])
   (:gen-class))
@@ -15,12 +15,17 @@
 
 (def conn (d/connect db-cfg))
 
+
+(def init-panel
+  {:active-view [:home]
+   :history []})
+
 (def initial-state
-  {:name "HER-LSF"
-   :db @conn
-   :active-panel [:home]
-   :style styles/style
-   :counter 0})
+  {:db @conn
+   :panels {:veranstaltungen init-panel
+            :raeume init-panel
+            :konflikte init-panel}
+   :style styles/style})
 
 (def *state
   (atom (fx/create-context
