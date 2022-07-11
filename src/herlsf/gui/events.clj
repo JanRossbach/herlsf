@@ -36,12 +36,22 @@
                             {:history (conj history active-view)
                              :active-view new-view}))))})
 
+(defmethod event-handler ::navigate-list
+  [{:keys [panel fx/event]}]
+  (let [[id _] event
+        new-view [:details id]]
+    {:dispatch {:event/type ::navigate
+                :panel panel
+                :new-view new-view}}))
+
 (defmethod event-handler ::navigate-back
   [{:keys [fx/context panel]}]
   {:context (fx/swap-context
              context
              (fn [c]
                (update-in c [:panels panel]
-                          (fn [{:keys [history]}]
-                            {:history (pop history)
-                             :active-view (peek history)}))))})
+                          (fn [{:keys [history] :as old-val}]
+                            (if (seq history)
+                              {:history (pop history)
+                               :active-view (peek history)}
+                              old-val)))))})

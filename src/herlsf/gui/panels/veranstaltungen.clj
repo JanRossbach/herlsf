@@ -8,7 +8,6 @@
 
 ;; Button Rows
 
-
 (defmulti active-buttons first)
 
 (def home-buttons
@@ -18,18 +17,8 @@
    [{:fx/type :button
      :text "Back"
      :style-class ["btn" "btn-danger"]
-     :on-action {:event/type ::events/navigate
-                 :target [:home]}}
-    {:fx/type :button
-     :text "Info"
-     :style-class ["btn" "btn-info"]
-     :on-action {:event/type ::events/navigate
-                 :target [:other]}}
-    {:fx/type :button
-     :text "Success"
-     :style-class ["btn" "btn-success"]
-     :on-action {:event/type ::events/navigate
-                 :target [:other]}}]})
+     :on-action {:event/type ::events/navigate-back
+                 :panel :veranstaltungen}}]})
 
 (defmethod active-buttons :home [_] home-buttons)
 
@@ -44,6 +33,7 @@
                  :target [:home]}}]})
 
 (defmethod active-buttons :other [_] other-buttons)
+(defmethod active-buttons :default [_] other-buttons)
 
 ;; Panel Views
 
@@ -54,13 +44,24 @@
   (fn [{:keys [fx/context]}]
     {:fx/type list-view/with-selection-props
      :props {:selection-mode :single
-             :on-selected-item-changed {:event/type ::events/select-veranstaltung}}
+             :on-selected-item-changed {:event/type ::events/navigate-list
+                                        :panel :veranstaltungen}}
      :desc {:fx/type :list-view
             :cell-factory {:fx/cell-type :list-cell
                            :describe (fn [[_ name]]
                                        {:style-class "p"
                                         :text (str name)})}
             :items (fx/sub-ctx context subs/alle-veranstaltungen)}}))
+
+(defmethod active-panel :details
+  [_]
+  (fn [_] {:fx/type :label
+          :text "Hello World"}))
+
+(defmethod active-panel :default
+  [active-view]
+  {:fx/type :label
+   :text (str "Something went wrong with navigation for view: " active-view)})
 
 (defn root [{:keys [fx/context]}]
   (let [active-view (fx/sub-ctx context subs/active-view :veranstaltungen)]
