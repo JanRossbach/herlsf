@@ -7,6 +7,9 @@
 (defn- query-sub [context query & inputs]
   (apply d/q query (fx/sub-val context :db) inputs))
 
+(defn- pull-sub [context pull-expr id]
+  (d/pull (fx/sub-val context :db) pull-expr id))
+
 (defn alle-veranstaltungen
   [context]
   (fx/sub-ctx context query-sub
@@ -18,3 +21,7 @@
   [context panel]
   (let [panels (fx/sub-val context :panels)]
     (:active-view (panel panels))))
+
+(defn veranstaltung-details
+  [context id]
+  (fx/sub-ctx context pull-sub '[*] id))

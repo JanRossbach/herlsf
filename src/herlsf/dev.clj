@@ -69,6 +69,11 @@
          [?v :lehrperson/pers-id ?id]]
        @conn)
 
+  (d/pull
+   @conn
+   '[*]
+   132)
+
 ;; REPL
 
   (run-app)

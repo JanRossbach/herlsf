@@ -14,11 +14,7 @@
   {:fx/type :h-box
    :spacing 5
    :children
-   [{:fx/type :button
-     :text "Back"
-     :style-class ["btn" "btn-danger"]
-     :on-action {:event/type ::events/navigate-back
-                 :panel :veranstaltungen}}]})
+   []})
 
 (defmethod active-buttons :home [_] home-buttons)
 
@@ -27,12 +23,13 @@
    :spacing 5
    :children
    [{:fx/type :button
-     :text "Success"
-     :style-class ["btn" "btn-success"]
-     :on-action {:event/type ::events/navigate
-                 :target [:home]}}]})
+     :text "Back"
+     :style-class ["btn" "btn-danger"]
+     :on-action {:event/type ::events/navigate-back
+                 :panel :veranstaltungen}}
+    ]})
 
-(defmethod active-buttons :other [_] other-buttons)
+(defmethod active-buttons :details [_] other-buttons)
 (defmethod active-buttons :default [_] other-buttons)
 
 ;; Panel Views
@@ -47,6 +44,7 @@
              :on-selected-item-changed {:event/type ::events/navigate-list
                                         :panel :veranstaltungen}}
      :desc {:fx/type :list-view
+            :min-height 960
             :cell-factory {:fx/cell-type :list-cell
                            :describe (fn [[_ name]]
                                        {:style-class "p"
@@ -54,9 +52,12 @@
             :items (fx/sub-ctx context subs/alle-veranstaltungen)}}))
 
 (defmethod active-panel :details
-  [_]
-  (fn [_] {:fx/type :label
-          :text "Hello World"}))
+  [[_ id]]
+  (fn [{:keys [fx/context]}]
+    (let [v (fx/sub-ctx context subs/veranstaltung-details id)]
+      {:fx/type :label
+       :style-class "h3"
+       :text (str v)})))
 
 (defmethod active-panel :default
   [active-view]

@@ -57,7 +57,7 @@
 (def main-bar
   {:fx/type :tab-pane
    :pref-width 960
-   :pref-height 1024
+   :pref-height 1824
    :tabs (mapv tab-item tabs)})
 
 (defn root [{:keys [fx/context]}]
