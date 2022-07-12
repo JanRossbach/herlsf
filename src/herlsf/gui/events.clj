@@ -4,7 +4,8 @@
    [herlsf.gui.subs :as subs])
   (:import [javafx.stage FileChooser]
            [javafx.event ActionEvent]
-           [javafx.scene Node]))
+           [javafx.scene Node]
+           [javafx.scene.input KeyEvent KeyCode]))
 
 
 (defmulti event-handler :event/type)
@@ -28,13 +29,15 @@
 
 (defmethod event-handler ::navigate
   [{:keys [:fx/context panel new-view]}]
+  (prn "Hello" new-view)
   {:context (fx/swap-context
              context
              (fn [c]
                (update-in c [:panels panel]
-                          (fn [{:keys [history active-view]}]
-                            {:history (conj history active-view)
-                             :active-view new-view}))))})
+                          (fn [{:keys [history active-view] :as old-val}]
+                            (assoc old-val
+                                   :history (conj history active-view)
+                                   :active-view new-view)))))})
 
 (defmethod event-handler ::navigate-list
   [{:keys [panel fx/event]}]
@@ -55,3 +58,22 @@
                               {:history (pop history)
                                :active-view (peek history)}
                               old-val)))))})
+
+(defmethod event-handler ::set-search-text
+  [{:keys [fx/context panel fx/event]}]
+  {:context (fx/swap-context
+             context
+             (fn [c]
+               (assoc-in c [:panels panel :search-text] event)))})
+
+
+(defmethod event-handler ::search-key-press
+  [{:keys [fx/context panel ^KeyEvent fx/event]}]
+  (if (= KeyCode/ENTER (.getCode event))
+    (let [search-text (fx/sub-ctx context subs/search-text panel)
+          new-view [:home search-text]]
+      (prn search-text new-view)
+      {:dispatch {:event/type ::navigate
+                  :panel panel
+                  :new-view new-view}})
+    {}))

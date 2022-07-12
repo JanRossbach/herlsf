@@ -17,8 +17,9 @@
 
 
 (def init-panel
-  {:active-view [:home]
-   :history []})
+  {:active-view [:home ""]
+   :history []
+   :search-text ""})
 
 (def initial-state
   {:db @conn
@@ -51,7 +52,6 @@
    :effects {:transact (fn [tx-data _] (d/transact conn tx-data))
              :xml xml-effect}
    :desc-fn (fn [_] {:fx/type views/root})))
-
 
 (defn -main []
   (run-app))

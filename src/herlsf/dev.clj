@@ -25,7 +25,7 @@
 
   (renderer)
 
-  ((:renderer (gui/run-app)))
+  (pprint @herlsf.core/*state)
 
   (def conn (d/connect {:store {:backend :file
                                 :path "resources/db/hike"}}))
@@ -42,6 +42,22 @@
     '[:find ?id
       :where
       [?n :veranstaltung/id ?id]])
+
+  (apply d/q '[:find ?id ?name
+               :in $ ?search-term
+               :where
+               [?id :veranstaltung/name ?name]
+               [(re-matches ?search-term ?name)]]
+         @conn
+         '(#".*"))
+
+  (pprint (d/pull
+           @conn
+           '["*"
+             {:veranstaltung/lehrpersonen [:lehrperson/name
+                                           :lehrperson/vorname]}
+             {:veranstaltung/vzeiten [:vzeit/start-zeit]}]
+           322))
 
   (d/q
    '[:find ?name
