@@ -17,4 +17,5 @@
             :exec-args {:aot false
                         :jar "herlsf.jar"
                         :main-class herlsf.core}}
+  :dev {:extra-paths ["test"]}
   }}
