@@ -21,6 +21,41 @@
                   [(re-matches ?search-term ?name)]]
                 search-regex)))
 
+
+(defn raeume-filtered
+  [context search-term]
+  (let [search-regex (re-pattern (str ".*" search-term ".*"))]
+    (fx/sub-ctx context query-sub
+                '[:find ?id ?name
+                  :in $ ?search-term
+                  :where
+                  [?id :raum/name ?name]
+                  [(re-matches ?search-term ?name)]]
+                search-regex)))
+
+(defn conflicts-filtered
+  [context search-term]
+  (let [search-regex (re-pattern (str ".*" search-term ".*"))]
+    (fx/sub-ctx context query-sub
+                '[:find ?zeit ?n ?zeit2 ?m
+                  :in $ ?search-term
+                  :where
+                  [?v :veranstaltung/name ?n]
+                  [?w :veranstaltung/name ?m]
+                  [(not= ?v ?w)]
+                  (or-join [?n ?m ?search-term]
+                           [(re-matches ?search-term ?n)]
+                           [(re-matches ?search-term ?m)])
+                  [?zeit :vzeit/start-zeit ?time]
+                  [?zeit2 :vzeit/start-zeit ?time]
+                  [?zeit :vzeit/wochentag ?tag]
+                  [?zeit2 :vzeit/wochentag ?tag]
+                  [?v :veranstaltung/vzeiten ?zeit]
+                  [?w :veranstaltung/vzeiten ?zeit2]
+                  [?v :veranstaltung/studiengang ?s]
+                  [?w :veranstaltung/studiengang ?s]]
+                search-regex)))
+
 (defn active-view
   [context panel]
   (let [panels (fx/sub-val context :panels)]
@@ -39,3 +74,7 @@
                                  {:veranstaltung/vzeiten
                                   [:vzeit/raum]}]
               id))
+
+(defn raum-details
+  [context id]
+  (fx/sub-ctx context pull-sub '["*"] id))

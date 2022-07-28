@@ -22,14 +22,8 @@
     (when-let [file (.showOpenDialog chooser window)]
       {:xml (slurp file)})))
 
-(defmethod event-handler ::select-veranstaltung
-  [{:keys [:fx/event]}]
-  (let [[id name] event]
-    (prn (str "ID: " id " Name: " name))))
-
 (defmethod event-handler ::navigate
   [{:keys [:fx/context panel new-view]}]
-  (prn "Hello" new-view)
   {:context (fx/swap-context
              context
              (fn [c]
@@ -53,10 +47,25 @@
              context
              (fn [c]
                (update-in c [:panels panel]
-                          (fn [{:keys [history] :as old-val}]
+                          (fn [{:keys [history back-history active-view] :as old-val}]
                             (if (seq history)
                               {:history (pop history)
-                               :active-view (peek history)}
+                               :active-view (peek history)
+                               :back-history (conj back-history active-view)}
+                              old-val)))))})
+
+
+(defmethod event-handler ::navigate-forward
+  [{:keys [fx/context panel]}]
+  {:context (fx/swap-context
+             context
+             (fn [c]
+               (update-in c [:panels panel]
+                          (fn [{:keys [history back-history active-view] :as old-val}]
+                            (if (seq back-history)
+                              {:history (conj history active-view)
+                               :active-view (peek back-history)
+                               :back-history (pop back-history)}
                               old-val)))))})
 
 (defmethod event-handler ::set-search-text
@@ -72,8 +81,15 @@
   (if (= KeyCode/ENTER (.getCode event))
     (let [search-text (fx/sub-ctx context subs/search-text panel)
           new-view [:home search-text]]
-      (prn search-text new-view)
       {:dispatch {:event/type ::navigate
                   :panel panel
                   :new-view new-view}})
     {}))
+
+
+;; (defmethod event-handler ::reset-panel
+;;   [{:keys [fx/context panel]}]
+;;   {:context (fx/swap-context
+;;              context
+;;              (fn [c]
+;;                (assoc-in c [:panels panel] (herlsf.core/initial-state))))})

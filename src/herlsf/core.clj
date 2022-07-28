@@ -19,6 +19,7 @@
 (def init-panel
   {:active-view [:home ""]
    :history []
+   :back-history []
    :search-text ""})
 
 (def initial-state

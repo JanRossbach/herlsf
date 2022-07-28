@@ -92,11 +92,11 @@
 
 ;; REPL
 
-  (run-app)
+  (herlsf.core/run-app)
 
   ;; to iterate during development on style, add a watch to var that updates style in app
   ;; state...
-  (add-watch #'styles/style :refresh-app (fn [_ _ _ _] (swap! *state assoc :style styles/style)))
+  (add-watch #'styles/style :refresh-app (fn [_ _ _ _] (swap! herlsf.core/*state assoc :style styles/style)))
   ;; ... and remove it when you are done
   (remove-watch #'styles/style :refresh-app)
 
