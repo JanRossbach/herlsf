@@ -9,33 +9,18 @@
    [herlsf.gui.style :as styles])
   (:gen-class))
 
-
-(def db-cfg {:store {:backend :file
-                     :path "resources/db/hike"}})
-
-(def conn (d/connect db-cfg))
-
-
 (def init-panel
   {:active-view [:home ""]
    :history []
    :back-history []
    :search-text ""})
 
-(def initial-state
+(defn initial-state [conn]
   {:db @conn
    :panels {:veranstaltungen init-panel
             :raeume init-panel
             :konflikte init-panel}
    :style styles/style})
-
-(def *state
-  (atom (fx/create-context
-         initial-state
-         #(cache/lru-cache-factory % :threshold 4096))))
-
-;; Listen to changes on the datahike connection and update the state atom
-(d/listen conn :ui (fn [_] (swap! *state fx/swap-context assoc :db @conn)))
 
 (defn xml-effect
   [^String v dispatch!]
@@ -46,13 +31,24 @@
          (throw (ex-info (str "XML Import failed with exception: " e)
                          {:event-value v})))))
 
-(defn run-app []
-  (fx/create-app
-   *state
-   :event-handler events/event-handler
-   :effects {:transact (fn [tx-data _] (d/transact conn tx-data))
-             :xml xml-effect}
-   :desc-fn (fn [_] {:fx/type views/root})))
+(defn run-app [db-cfg showing?]
+  (if (not (d/database-exists? db-cfg))
+    (d/create-database db-cfg)
+    (let [conn (d/connect db-cfg)
+          *state (atom (fx/create-context
+                        (initial-state conn)
+                        #(cache/lru-cache-factory % :threshold 4096)))]
+    ;; Listen to changes on the datahike connection and update the state atom
+      (d/listen conn :ui (fn [_] (swap! *state fx/swap-context assoc :db @conn)))
+      (fx/create-app
+       *state
+       :event-handler events/event-handler
+       :effects {:transact (fn [tx-data _] (d/transact conn tx-data))
+                 :xml xml-effect}
+       :desc-fn (fn [_] {:fx/type views/root
+                         :showing showing?})))))
 
 (defn -main []
-  (run-app))
+  (let [db-cfg {:store {:backend :file
+                        :path "resources/db/hike"}}]
+    (run-app db-cfg true)))

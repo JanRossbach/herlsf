@@ -11,6 +11,9 @@
    [herlsf.xml :refer [xml->entities xmlmap->map]]
    [cljfx.api :as fx]))
 
+(def db-cfg {:store {:backend :file
+                     :path "resources/db/hike"}})
+
 (comment
 
   (doc fx/sub-ctx)
@@ -21,7 +24,7 @@
 
   (doc fx/create-app)
 
-  (def renderer (:renderer (gui/run-app)))
+  (def renderer (:renderer (gui/run-app db-cfg true)))
 
   (renderer)
 

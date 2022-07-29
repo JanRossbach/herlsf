@@ -60,15 +60,16 @@
    :pref-height 1824
    :tabs (mapv tab-item tabs)})
 
-(defn root [{:keys [fx/context]}]
-  {:fx/type :stage
-   :showing true
-   :title "HER-LSF"
-   :scene {:fx/type :scene
-           :stylesheets [(::css/url (fx/sub-val context :style))
-                         (BootstrapFX/bootstrapFXStylesheet)]
-           :root {:fx/type :v-box
-                  :fill-width true
-                  :spacing 5
-                  :children [{:fx/type menubar}
-                             main-bar]}}})
+(defn root
+  [{:keys [fx/context showing]}]
+    {:fx/type :stage
+     :showing showing
+     :title "HER-LSF"
+     :scene {:fx/type :scene
+             :stylesheets [(::css/url (fx/sub-val context :style))
+                           (BootstrapFX/bootstrapFXStylesheet)]
+             :root {:fx/type :v-box
+                    :fill-width true
+                    :spacing 5
+                    :children [{:fx/type menubar}
+                               main-bar]}}})

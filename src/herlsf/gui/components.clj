@@ -1,4 +1,4 @@
-(ns herlsf.gui.panels.components
+(ns herlsf.gui.components
   (:require
    [cljfx.api :as fx]
    [herlsf.gui.subs :as subs]
@@ -10,8 +10,7 @@
 ;; Navbar
 
 (defn search-bar
-  [panel-name]
-  (fn [{:keys [fx/context]}]
+   [{:keys [fx/context panel-name]}]
     (let [search-text (fx/sub-ctx context subs/search-text panel-name)]
       {:fx/type :h-box
        :spacing 10
@@ -26,7 +25,7 @@
                    :on-text-changed {:event/type ::events/set-search-text
                                      :panel panel-name}
                    :on-key-pressed {:event/type ::events/search-key-press
-                                    :panel panel-name}}]})))
+                                    :panel panel-name}}]}))
 
 (defn back-button
   [panel-name]
@@ -48,14 +47,15 @@
 
 
 (defn navbar
-  [panel-name search?]
+  [{:keys [panel-name search?]}]
   {:fx/type :h-box
    :spacing 15
                                         ;:fill-width true
    :children [(back-button panel-name)
               (forward-button panel-name)
               (if search?
-                {:fx/type (search-bar panel-name)}
+                {:fx/type search-bar
+                 :panel-name panel-name}
                 {:fx/type :label :text ""})]})
 
 ;; Errors

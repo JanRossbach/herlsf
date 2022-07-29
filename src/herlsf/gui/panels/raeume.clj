@@ -3,7 +3,7 @@
    [cljfx.api :as fx]
    [herlsf.gui.subs :as subs]
    [herlsf.gui.events :as events]
-   [herlsf.gui.panels.components :as util]
+   [herlsf.gui.components :as util]
    [cljfx.ext.list-view :as list-view]))
 
 (def ^:const panel-name :raeume)
@@ -20,7 +20,9 @@
      :spacing 10
      :padding 10
      :children
-     [(util/navbar panel-name true)
+     [{:fx/type util/navbar
+       :panel-name panel-name
+       :search true}
       {:fx/type list-view/with-selection-props
        :props {:selection-mode :single
                :on-selected-item-changed {:event/type ::events/navigate-list
@@ -41,7 +43,9 @@
       {:fx/type :v-box
        :spacing 10
        :padding 10
-       :children [(util/navbar panel-name false)
+       :children [{:fx/type util/navbar
+                   :panel-name panel-name
+                   :search false}
                   {:fx/type :label
                    :text (str r)}]})))
 
