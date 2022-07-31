@@ -82,8 +82,13 @@
 (defn v-zeiten
   [context raum-id]
   (fx/sub-ctx context query-sub
-   '[:find [?id ...]
+   '[:find ?start-zeit ?end-zeit ?wochentag ?vname
      :in $ ?raum-id
      :where
-     [?id :vzeit/raum ?raum-id]]
+     [?id :vzeit/raum ?raum-id]
+     [?id :vzeit/start-zeit ?start-zeit]
+     [?id :vzeit/end-zeit ?end-zeit]
+     [?id :vzeit/wochentag ?wochentag]
+     [?vid :veranstaltung/vzeiten ?id]
+     [?vid :veranstaltung/name ?vname]]
    raum-id))

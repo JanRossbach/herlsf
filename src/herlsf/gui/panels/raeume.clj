@@ -5,7 +5,8 @@
    [herlsf.gui.events :as events]
    [herlsf.gui.components :as util]
    [cljfx.ext.list-view :as list-view]
-   [com.rpl.specter :as s]))
+   [com.rpl.specter :as s]
+   [clojure.string :as string]))
 
 (def ^:const panel-name :raeume)
 
@@ -51,12 +52,13 @@
                       (label kv)))}))
 
 (defn vz-list
-  [{:keys [v-zeiten]}]
-  {:fx/type :v-box
-   :spacing 3
-   :padding 3
-   :children (vec (for [v v-zeiten] {:fx/type v-zeit
-                                     :v-id v}))})
+  [{:keys [fx/context v-zeiten]}]
+  {:fx/type :list-view
+   :min-height 200
+   :cell-factory {:fx/cell-type :list-cell :padding 10
+                  :describe (fn [v] {:style-class ["h4"]
+                                    :text (string/join "-" v)})}
+   :items v-zeiten})
 
 (defn raum-view
   [{:keys [raum v-zeiten]}]
