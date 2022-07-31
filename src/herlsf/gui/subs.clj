@@ -75,6 +75,15 @@
                                   [:vzeit/raum]}]
               id))
 
-(defn raum-details
+(defn pull-all
   [context id]
   (fx/sub-ctx context pull-sub '["*"] id))
+
+(defn v-zeiten
+  [context raum-id]
+  (fx/sub-ctx context query-sub
+   '[:find [?id ...]
+     :in $ ?raum-id
+     :where
+     [?id :vzeit/raum ?raum-id]]
+   raum-id))

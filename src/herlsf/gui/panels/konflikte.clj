@@ -39,7 +39,7 @@
 (defmethod active-panel :details
   [[_ id]]
   (fn [{:keys [fx/context]}]
-    (let [r (fx/sub-ctx context subs/raum-details id)]
+    (let [r (fx/sub-ctx context subs/pull-all id)]
       {:fx/type :v-box
        :spacing 10
        :padding 10

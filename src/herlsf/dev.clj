@@ -11,25 +11,17 @@
    [herlsf.xml :refer [xml->entities xmlmap->map]]
    [cljfx.api :as fx]))
 
+(def db-cfg {:store {:backend :file
+                     :path "resources/db/hike"}})
 
 (comment
 
-  (def db-cfg {:store {:backend :file
-                       :path "resources/db/hike"}})
 
-  (doc fx/sub-ctx)
+  ;; Start the App
+  (def renderer (:renderer (gui/run-app (d/connect db-cfg) true)))
 
-  (doc d/db)
-
-  (doc d/listen)
-
-  (doc fx/create-app)
-
-  (def renderer (:renderer (gui/run-app db-cfg true)))
-
+  ;; Redraw the app after changing code
   (renderer)
-
-  (pprint @herlsf.core/*state)
 
   (def conn (d/connect {:store {:backend :file
                                 :path "resources/db/hike"}}))

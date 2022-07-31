@@ -4,7 +4,8 @@
    [herlsf.gui.subs :as subs]
    [herlsf.gui.events :as events]
    [herlsf.gui.components :as util]
-   [cljfx.ext.list-view :as list-view]))
+   [cljfx.ext.list-view :as list-view]
+   [com.rpl.specter :as s]))
 
 (def ^:const panel-name :raeume)
 
@@ -36,18 +37,59 @@
                                           :text (str name)})}
               :items (fx/sub-ctx context subs/raeume-filtered search-term)}}]}))
 
+(defn label [[k v]]
+  {:fx/type :label
+   :style-class ["p"]
+   :text (str k " : " v)})
+
+(defn v-zeit
+  [{:keys [fx/context v-id]}]
+  (let [v-zeit (fx/sub-ctx context subs/pull-all v-id)]
+    {:fx/type :v-box
+     :padding 3
+     :children (vec (for [kv (seq v-zeit)]
+                      (label kv)))}))
+
+(defn vz-list
+  [{:keys [v-zeiten]}]
+  {:fx/type :v-box
+   :spacing 3
+   :padding 3
+   :children (vec (for [v v-zeiten] {:fx/type v-zeit
+                                     :v-id v}))})
+
+(defn raum-view
+  [{:keys [raum v-zeiten]}]
+  (let [{:keys [:raum/form :raum/gebaeude :raum/name]} raum]
+    {:fx/type :v-box
+     :spacing 10
+     :padding 10
+     :children [{:fx/type :label
+                 :style-class ["h2"]
+                 :text name}
+                {:fx/type :label
+                 :style-class ["h3"]
+                 :text (str "Form: " form)}
+                {:fx/type :label
+                 :style-class ["h4"]
+                 :text (str "Gebäude: " gebaeude)}
+                {:fx/type vz-list
+                 :v-zeiten v-zeiten}]}))
+
 (defmethod active-panel :details
   [[_ id]]
   (fn [{:keys [fx/context]}]
-    (let [r (fx/sub-ctx context subs/raum-details id)]
+    (let [r (fx/sub-ctx context subs/pull-all id)
+          v-zeiten (fx/sub-ctx context subs/v-zeiten id)]
       {:fx/type :v-box
        :spacing 10
        :padding 10
        :children [{:fx/type util/navbar
                    :panel-name panel-name
                    :search false}
-                  {:fx/type :label
-                   :text (str r)}]})))
+                  {:fx/type raum-view
+                   :raum r
+                   :v-zeiten v-zeiten}]})))
 
 (defn table-view [_]
   {:fx/type :table-view
