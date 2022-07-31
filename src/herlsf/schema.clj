@@ -24,8 +24,6 @@
                                   :opt [:lehrperson/name
                                         :lehrperson/vorname]))
 
-
-
 ;; Vorlesungzeit
 
 (spec/def :vzeit/id (spec/and int? #(> % 0)))

@@ -11,10 +11,11 @@
    [herlsf.xml :refer [xml->entities xmlmap->map]]
    [cljfx.api :as fx]))
 
-(def db-cfg {:store {:backend :file
-                     :path "resources/db/hike"}})
 
 (comment
+
+  (def db-cfg {:store {:backend :file
+                       :path "resources/db/hike"}})
 
   (doc fx/sub-ctx)
 
@@ -94,8 +95,6 @@
    132)
 
 ;; REPL
-
-  (herlsf.core/run-app)
 
   ;; to iterate during development on style, add a watch to var that updates style in app
   ;; state...

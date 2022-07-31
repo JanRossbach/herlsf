@@ -31,11 +31,8 @@
          (throw (ex-info (str "XML Import failed with exception: " e)
                          {:event-value v})))))
 
-(defn run-app [db-cfg showing?]
-  (if (not (d/database-exists? db-cfg))
-    (d/create-database db-cfg)
-    (let [conn (d/connect db-cfg)
-          *state (atom (fx/create-context
+(defn run-app [conn showing?]
+    (let [*state (atom (fx/create-context
                         (initial-state conn)
                         #(cache/lru-cache-factory % :threshold 4096)))]
     ;; Listen to changes on the datahike connection and update the state atom
@@ -46,9 +43,12 @@
        :effects {:transact (fn [tx-data _] (d/transact conn tx-data))
                  :xml xml-effect}
        :desc-fn (fn [_] {:fx/type views/root
-                         :showing showing?})))))
+                         :showing showing?}))))
 
 (defn -main []
   (let [db-cfg {:store {:backend :file
                         :path "resources/db/hike"}}]
-    (run-app db-cfg true)))
+    (if (not (d/database-exists? db-cfg))
+      (d/create-database db-cfg)
+      nil)
+    (run-app (d/connect db-cfg) true)))
