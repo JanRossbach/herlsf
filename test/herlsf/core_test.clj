@@ -52,20 +52,22 @@
                                                                                :fx/context context
                                                                                :panel :veranstaltungen
                                                                                :new-view [:details 123]}))
-                                              :veranstaltungen)))
+                                              :veranstaltungen))
+          "Navigate Event Changes the active-view")
     (t/is (= "Graph" (subs/search-text (:context (events/event-handler {:event/type ::events/set-search-text
                                                                         :fx/context context
                                                                         :panel :veranstaltungen
                                                                         :fx/event "Graph"}))
-                                       :veranstaltungen)))
+                                       :veranstaltungen))
+          "Changing the search text from Text Field Event sets the search-text correctly")
     (t/is (= {:event/type ::events/navigate
               :panel :veranstaltungen
               :new-view [:home "Graph"]}
              (:dispatch (events/event-handler {:event/type ::events/search-key-press
                                                :fx/context (:context (events/event-handler {:event/type ::events/set-search-text
-                                                                        :fx/context context
-                                                                        :panel :veranstaltungen
-                                                                        :fx/event "Graph"}))
+                                                                                            :fx/context context
+                                                                                            :panel :veranstaltungen
+                                                                                            :fx/event "Graph"}))
                                                :panel :veranstaltungen
                                                :fx/event (KeyEvent. KeyEvent/KEY_PRESSED
                                                                     "Enter"
@@ -74,4 +76,23 @@
                                                                     false
                                                                     false
                                                                     false
-                                                                    false)}))))))
+                                                                    false)})))
+          "Confirm Search Event dispatches the correct navigation Event")
+    (t/is (= [:home ""] (subs/active-view (:context (events/event-handler {:event/type ::events/navigate-back
+                                                                           :fx/context (:context (events/event-handler {:event/type ::events/navigate
+                                                                                                                        :fx/context context
+                                                                                                                        :panel :veranstaltungen
+                                                                                                                        :new-view [:details 123]}))
+                                                                           :panel :veranstaltungen}))
+                                          :veranstaltungen))
+          "Navigating Back after navigating to details returns to home")
+    (t/is (= [:details 123] (subs/active-view (:context (events/event-handler {:event/type ::events/navigate-forward
+                                                                               :panel :veranstaltungen
+                                                                               :fx/context (:context (events/event-handler {:event/type ::events/navigate-back
+                                                                                                                            :fx/context (:context (events/event-handler {:event/type ::events/navigate
+                                                                                                                                                                         :fx/context context
+                                                                                                                                                                         :panel :veranstaltungen
+                                                                                                                                                                         :new-view [:details 123]}))
+                                                                                                                            :panel :veranstaltungen}))}))
+                                              :veranstaltungen))
+          "Navigating Forward after navigating back returns to the correct view")))

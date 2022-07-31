@@ -128,5 +128,9 @@
         lehrperson-schema)))
 
 (defn generate-mock-db
+  "
+  Takes no arguments and returns a
+  database transaction with random values conforming to the schema.
+  "
   []
   (gen/generate (spec/gen ::entities)))

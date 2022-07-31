@@ -35,9 +35,10 @@
            {:fx/type settings-menu}]})
 
 
-;; To introduce new Tabs, you can add them here and mount the appropriate root component.
-;; If you want navigation, you need to also add the appropriate panel name to the inital state in
-;; herlsf.core
+;; To introduce new Tabs, you can add them here and mount the appropriate root component
+;; from a corresponding new namespace in the panel folder.
+;; If you want navigation and state for the panel,
+;; you should also add the appropriate panel name to the inital state in herlsf.core.
 
 (def tabs
   [
@@ -61,6 +62,9 @@
    :tabs (mapv tab-item tabs)})
 
 (defn root
+  "
+  App entry point component.
+  "
   [{:keys [fx/context showing]}]
     {:fx/type :stage
      :showing showing

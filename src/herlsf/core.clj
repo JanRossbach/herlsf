@@ -23,6 +23,10 @@
    :style styles/style})
 
 (defn xml-effect
+  "
+  A side effect, that takes the string read from an xml file, turns it into
+  a datomic transaction and dispatches a transact effect.
+  "
   [^String v dispatch!]
   (try (let [transaction (xml/xml->entities v)]
          (dispatch! {:event/type :transact
@@ -31,7 +35,13 @@
          (throw (ex-info (str "XML Import failed with exception: " e)
                          {:event-value v})))))
 
-(defn run-app [conn showing?]
+(defn run-app
+  "
+  App Entry Point. Returns a clfx app instance.
+  If showing? is true, the app will show in a new window.
+  Takes an active database connection for testability.
+  "
+  [conn showing?]
     (let [*state (atom (fx/create-context
                         (initial-state conn)
                         #(cache/lru-cache-factory % :threshold 4096)))]
