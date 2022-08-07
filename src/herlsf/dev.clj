@@ -107,4 +107,6 @@
                 [?w :veranstaltung/studiengang ?s]
                 [?v :veranstaltung/name ?n]
                 [?w :veranstaltung/name ?m]]
-              @conn)))
+              @conn))
+
+  )

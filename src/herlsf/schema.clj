@@ -134,3 +134,19 @@
   "
   []
   (gen/generate (spec/gen ::entities)))
+
+(defn konflikt->danger-class
+  "
+  For a konlikt-tuple, meaning a result from the
+  conflicts-filtered subscription, this function determines
+  the appropriate danger class, meaning a keyword of either
+  :normal
+  :warning
+  :danger
+  "
+  [[id1 name1 id2 name2]]
+  (let [r (rand-int 100)]
+    (cond
+      (< 66 r) :danger
+      (< 33 r 66) :warning
+      :else :normal)))

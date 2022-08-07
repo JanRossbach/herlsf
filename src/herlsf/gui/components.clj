@@ -31,7 +31,7 @@
   [panel-name]
   {:fx/type :button
    :alignment :baseline-left
-   :text "Back"
+   :text "Zurück"
    :style-class ["btn" "btn-danger" "btn-sm"]
    :on-action {:event/type ::events/navigate-back
                :panel panel-name}})
@@ -47,13 +47,13 @@
 
 
 (defn navbar
-  [{:keys [panel-name search?]}]
+  [{:keys [panel-name search]}]
   {:fx/type :h-box
    :spacing 15
                                         ;:fill-width true
    :children [(back-button panel-name)
               (forward-button panel-name)
-              (if search?
+              (if search
                 {:fx/type search-bar
                  :panel-name panel-name}
                 {:fx/type :label :text ""})]})

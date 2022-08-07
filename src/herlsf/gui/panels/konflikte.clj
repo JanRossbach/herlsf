@@ -4,7 +4,8 @@
    [herlsf.gui.components :as util]
    [herlsf.gui.subs :as subs]
    [herlsf.gui.events :as events]
-   [cljfx.ext.list-view :as list-view]))
+   [cljfx.ext.list-view :as list-view]
+   [herlsf.schema :as db]))
 
 (def ^:const panel-name :konflikte)
 
@@ -12,6 +13,18 @@
 (defmethod active-panel :default
   [active-view]
   (util/navigation-error-panel panel-name active-view))
+
+(defn konflikt->str
+  [[_ name1 _ name2]]
+  (str name1 " || " name2))
+
+(defn konflikt->style-class
+  [tuple]
+  (case (db/konflikt->danger-class tuple)
+    :danger "bg-danger"
+    :warning "bg-warning"
+    :normal "h4"
+    ))
 
 (defmethod active-panel :home
   [[_ search-term]]
@@ -31,9 +44,9 @@
               :min-height 960
               :cell-factory {:fx/cell-type :list-cell
                              :padding 10
-                             :describe (fn [[_ name1 _ name2]]
-                                         {:style-class ["h4"]
-                                          :text (str name1 " vs " name2)})}
+                             :describe (fn [tuple]
+                                         {:style-class ["h4" (konflikt->style-class tuple)]
+                                          :text (konflikt->str tuple)})}
               :items (fx/sub-ctx context subs/conflicts-filtered search-term)}}]}))
 
 (defmethod active-panel :details

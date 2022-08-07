@@ -70,7 +70,8 @@
      :showing showing
      :title "HER-LSF"
      :scene {:fx/type :scene
-             :stylesheets [(::css/url (fx/sub-val context :style))
+             :stylesheets ["application.css"
+                           (::css/url (fx/sub-val context :style))
                            (BootstrapFX/bootstrapFXStylesheet)]
              :root {:fx/type :v-box
                     :fill-width true
