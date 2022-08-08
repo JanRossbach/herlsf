@@ -14,7 +14,7 @@
 (defn veranstaltungen-filtered
   [context {:keys [search-term studiengang] :as arg}]
   (let [search-regex (re-pattern (str ".*" search-term ".*"))]
-    (if studiengang
+    (if (and studiengang (not= studiengang "Studiengang"))
       (fx/sub-ctx context query-sub
                   '[:find ?id ?name
                     :in $ ?search-term ?stg
@@ -31,8 +31,6 @@
                     [?id :veranstaltung/name ?name]
                     [(re-matches ?search-term ?name)]]
                   search-regex))))
-
-(defn v-panel-studiengang-filter [])
 
 (defn raeume-filtered
   [context {:keys [search-term]}]
@@ -80,6 +78,12 @@
 
 (defn search-filter [context panel]
   (second (:active-view (panel (fx/sub-val context :panels)))))
+
+(defn studiengang-filter-value
+  [context]
+  (if-let [value (:studiengang (fx/sub-ctx context search-filter :veranstaltungen))]
+    value
+    "Studiengang"))
 
 (defn veranstaltung-details
   [context id]

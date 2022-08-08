@@ -21,14 +21,13 @@
 (defmethod quick-search-bar :veranstaltungen
   [panel-name]
   (fn [{:keys [fx/context]}]
-    (let [value "Studiengang"]
-      {:fx/type :combo-box
-       :value value
-       :style-class ["split-menu-btn" "split-menu-btn-primary"]
-       :on-value-changed {:event/type ::events/update-panel-filter
-                          :panel panel-name
-                          :key :studiengang}
-       :items (fx/sub-ctx context subs/studiengaenge)})))
+    {:fx/type :combo-box
+     :value (fx/sub-ctx context subs/studiengang-filter-value)
+     :style-class ["split-menu-btn" "split-menu-btn-primary"]
+     :on-value-changed {:event/type ::events/update-panel-filter
+                        :panel panel-name
+                        :key :studiengang}
+     :items (conj (fx/sub-ctx context subs/studiengaenge) "Studiengang")}))
 
 (defn search-bar
   [{:keys [fx/context panel-name]}]
