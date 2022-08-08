@@ -80,11 +80,20 @@
   [{:keys [fx/context panel ^KeyEvent fx/event]}]
   (if (= KeyCode/ENTER (.getCode event))
     (let [search-text (fx/sub-ctx context subs/search-text panel)
-          new-view [:home search-text]]
+          old-filter (fx/sub-ctx context subs/search-filter panel)
+          new-view [:home (assoc old-filter :search-term search-text)]]
       {:dispatch {:event/type ::navigate
                   :panel panel
                   :new-view new-view}})
     {}))
+
+(defmethod event-handler ::update-panel-filter
+  [{:keys [fx/context panel key fx/event]}]
+  (let [current-filter (fx/sub-ctx context subs/search-filter panel)
+        new-filter (assoc current-filter key event)]
+    {:dispatch {:event/type ::navigate
+                :panel panel
+                :new-view [:home new-filter]}}))
 
 
 ;; (defmethod event-handler ::reset-panel

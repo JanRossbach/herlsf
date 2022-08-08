@@ -10,20 +10,32 @@
 (defn- pull-sub [context pull-expr id]
   (d/pull (fx/sub-val context :db) pull-expr id))
 
-(defn veranstaltungen-filtered
-  [context search-term]
-  (let [search-regex (re-pattern (str ".*" search-term ".*"))]
-    (fx/sub-ctx context query-sub
-                '[:find ?id ?name
-                  :in $ ?search-term
-                  :where
-                  [?id :veranstaltung/name ?name]
-                  [(re-matches ?search-term ?name)]]
-                search-regex)))
 
+(defn veranstaltungen-filtered
+  [context {:keys [search-term studiengang] :as arg}]
+  (let [search-regex (re-pattern (str ".*" search-term ".*"))]
+    (if studiengang
+      (fx/sub-ctx context query-sub
+                  '[:find ?id ?name
+                    :in $ ?search-term ?stg
+                    :where
+                    [?id :veranstaltung/name ?name]
+                    [?id :veranstaltung/studiengang ?stg]
+                    [(re-matches ?search-term ?name)]]
+                  search-regex
+                  studiengang)
+      (fx/sub-ctx context query-sub
+                  '[:find ?id ?name
+                    :in $ ?search-term
+                    :where
+                    [?id :veranstaltung/name ?name]
+                    [(re-matches ?search-term ?name)]]
+                  search-regex))))
+
+(defn v-panel-studiengang-filter [])
 
 (defn raeume-filtered
-  [context search-term]
+  [context {:keys [search-term]}]
   (let [search-regex (re-pattern (str ".*" search-term ".*"))]
     (fx/sub-ctx context query-sub
                 '[:find ?id ?name
@@ -34,7 +46,7 @@
                 search-regex)))
 
 (defn conflicts-filtered
-  [context search-term]
+  [context {:keys [search-term]}]
   (let [search-regex (re-pattern (str ".*" search-term ".*"))]
     (fx/sub-ctx context query-sub
                 '[:find ?zeit ?n ?zeit2 ?m
@@ -66,6 +78,9 @@
   (let [panels (fx/sub-val context :panels)]
     (:search-text (panel panels))))
 
+(defn search-filter [context panel]
+  (second (:active-view (panel (fx/sub-val context :panels)))))
+
 (defn veranstaltung-details
   [context id]
   (fx/sub-ctx context pull-sub '["*"
@@ -92,3 +107,9 @@
      [?vid :veranstaltung/vzeiten ?id]
      [?vid :veranstaltung/name ?vname]]
    raum-id))
+
+(defn studiengaenge
+  [context]
+  (fx/sub-ctx context query-sub '[:find [?stg ...]
+                                  :where
+                                  [_ :veranstaltung/studiengang ?stg]]))

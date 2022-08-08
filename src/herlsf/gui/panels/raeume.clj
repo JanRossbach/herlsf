@@ -16,7 +16,7 @@
   (util/navigation-error-panel panel-name active-view))
 
 (defmethod active-panel :home
-  [[_ search-term]]
+  [[_ search-filter]]
   (fn [{:keys [fx/context]}]
     {:fx/type :v-box
      :spacing 10
@@ -36,7 +36,7 @@
                              :describe (fn [[_ name]]
                                          {:style-class ["h4"]
                                           :text (str name)})}
-              :items (fx/sub-ctx context subs/raeume-filtered search-term)}}]}))
+              :items (fx/sub-ctx context subs/raeume-filtered search-filter)}}]}))
 
 (defn label [[k v]]
   {:fx/type :label

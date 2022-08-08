@@ -9,23 +9,47 @@
 
 ;; Navbar
 
+(def quick-search-button-style ["btn" "btn-info" "btn-sm"])
+
+(defmulti quick-search-bar identity)
+(defmethod quick-search-bar :default
+  [_]
+  (fn [_]
+    {:fx/type :label
+     :text ""}))
+
+(defmethod quick-search-bar :veranstaltungen
+  [panel-name]
+  (fn [{:keys [fx/context]}]
+    (let [value "Studiengang"]
+      {:fx/type :combo-box
+       :value value
+       :style-class ["split-menu-btn" "split-menu-btn-primary"]
+       :on-value-changed {:event/type ::events/update-panel-filter
+                          :panel panel-name
+                          :key :studiengang}
+       :items (fx/sub-ctx context subs/studiengaenge)})))
+
 (defn search-bar
-   [{:keys [fx/context panel-name]}]
-    (let [search-text (fx/sub-ctx context subs/search-text panel-name)]
-      {:fx/type :h-box
-       :spacing 10
-       :children [{:fx/type :button
-                   :style-class ["btn" "btn-info" "btn-sm"]
-                   :text "Search"
-                   :on-action {:event/type ::events/navigate
-                               :panel panel-name
-                               :new-view [:home search-text]}}
-                  {:fx/type :text-field
-                   :text search-text
-                   :on-text-changed {:event/type ::events/set-search-text
-                                     :panel panel-name}
-                   :on-key-pressed {:event/type ::events/search-key-press
-                                    :panel panel-name}}]}))
+  [{:keys [fx/context panel-name]}]
+  (let [search-text (fx/sub-ctx context subs/search-text panel-name)
+        old-filter (fx/sub-ctx context subs/search-filter panel-name)]
+    {:fx/type :h-box
+     :spacing 10
+     :children [{:fx/type :button
+                 :style-class ["btn" "btn-info" "btn-sm"]
+                 :text "Search"
+                 :on-action {:event/type ::events/navigate
+                             :panel panel-name
+                             :new-view [:home (assoc old-filter :search-term search-text)]}}
+                {:fx/type :text-field
+                 :text search-text
+                 :on-text-changed {:event/type ::events/set-search-text
+                                   :panel panel-name}
+                 :on-key-pressed {:event/type ::events/search-key-press
+                                  :panel panel-name}}
+                {:fx/type (quick-search-bar panel-name)}
+                ]}))
 
 (defn back-button
   [panel-name]

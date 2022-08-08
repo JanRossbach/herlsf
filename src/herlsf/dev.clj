@@ -14,79 +14,34 @@
 (def db-cfg {:store {:backend :file
                      :path "resources/db/hike"}})
 
+(def xml-src (slurp "/home/jan/School/GeheimeDaten.xml"))
+
+(defn reset-db-from-xml [xml-src]
+  (let [entities (xml->entities xml-src)]
+    (d/delete-database db-cfg)
+    (d/create-database db-cfg)
+    (let [conn (d/connect db-cfg)]
+      (d/transact conn db/schema)
+      (d/transact conn entities))))
+
 (comment
 
+;; RESET DB
+  (reset-db-from-xml xml-src)
+
+  (def conn (d/connect db-cfg))
+
+  (def data (xmlmap->map (parse (java.io.StringReader. (clojure.string/replace xml-src #"\n[ ]*|\r" "")))))
+
+  (def entities (xml->entities xml-src))
+
+;; REPL
 
   ;; Start the App
   (def renderer (:renderer (gui/run-app (d/connect db-cfg) true)))
 
   ;; Redraw the app after changing code
   (renderer)
-
-  (def conn (d/connect {:store {:backend :file
-                                :path "resources/db/hike"}}))
-
-  (def xml-src (slurp "/home/jan/School/GeheimeDaten.xml"))
-
-  (def data (xmlmap->map (parse (java.io.StringReader. (clojure.string/replace xml-src #"\n[ ]*|\r" "")))))
-
-  (def entities (xml->entities xml-src))
-
-  (spec/explain ::db/entities entities)
-
-  (def veranstaltung-ids
-    '[:find ?id
-      :where
-      [?n :veranstaltung/id ?id]])
-
-  (apply d/q '[:find ?id ?name
-               :in $ ?search-term
-               :where
-               [?id :veranstaltung/name ?name]
-               [(re-matches ?search-term ?name)]]
-         @conn
-         '(#".*"))
-
-  (pprint (d/pull
-           @conn
-           '["*"
-             {:veranstaltung/lehrpersonen [:lehrperson/name
-                                           :lehrperson/vorname]}
-             {:veranstaltung/vzeiten [:vzeit/start-zeit]}]
-           322))
-
-  (d/q
-   '[:find ?name
-     :in $ ?search
-     :where
-     [_ :veranstaltung/name ?name]
-     [(re-matches ?search ?name)]]
-   conn
-   (re-pattern (str ".*" "Graph" ".*")))
-
-  (spit "initial_transaction.edn" entities)
-
-  (d/create-database {:store {:backend :file
-                              :path "resources/db/hike"}})
-
-  (d/transact conn db/schema)
-
-  (d/transact conn entities)
-
-  (d/q veranstaltung-ids @conn)
-
-  (d/q '[:find ?id
-         :where
-         [?v :lehrperson/name "Klau"]
-         [?v :lehrperson/pers-id ?id]]
-       @conn)
-
-  (d/pull
-   @conn
-   '[*]
-   132)
-
-;; REPL
 
   ;; to iterate during development on style, add a watch to var that updates style in app
   ;; state...
@@ -109,4 +64,31 @@
                 [?w :veranstaltung/name ?m]]
               @conn))
 
-  )
+  (pprint (d/pull
+           @conn
+           '["*"
+             {:veranstaltung/lehrpersonen [:lehrperson/name
+                                           :lehrperson/vorname]}
+             {:veranstaltung/vzeiten [:vzeit/start-zeit]}]
+           322))
+
+  (d/q
+   '[:find ?name
+     :in $ ?search
+     :where
+     [_ :veranstaltung/name ?name]
+     [(re-matches ?search ?name)]]
+   conn
+   (re-pattern (str ".*" "Graph" ".*")))
+
+  (spit "initial_transaction.edn" entities)
+
+  (d/q '[:find [?stg ...]
+         :where
+         [_ :veranstaltung/studiengang ?stg]]
+       @conn)
+
+  (d/pull
+   @conn
+   '[*]
+   132))

@@ -10,7 +10,7 @@
   (:gen-class))
 
 (def init-panel
-  {:active-view [:home ""]
+  {:active-view [:home {:search-term ""}]
    :history []
    :back-history []
    :search-text ""})
@@ -20,6 +20,7 @@
    :panels {:veranstaltungen init-panel
             :raeume init-panel
             :konflikte init-panel}
+   :comp-state {}
    :style styles/style})
 
 (defn xml-effect
