@@ -54,6 +54,7 @@
 (spec/def :veranstaltung/typ string?)
 (spec/def :veranstaltung/semester string?)
 (spec/def :veranstaltung/studiengang string?)
+(spec/def :veranstaltung/kurskategorie string?)
 (spec/def :veranstaltung/lehrpersonen (spec/coll-of ::lehrperson))
 (spec/def :veranstaltung/vzeiten (spec/coll-of ::vzeit))
 
@@ -69,8 +70,8 @@
                                      :opt
                                      [:veranstaltung/SWS
                                       :veranstaltung/ECTS
-                                      :veranstaltung/max-teilnehmer
-                                      ]))
+                                      :veranstaltung/kurskategorie
+                                      :veranstaltung/max-teilnehmer]))
 
 
 (spec/def ::entity (spec/or :raum ::raum
@@ -94,6 +95,7 @@
     :veranstaltung/typ
     :veranstaltung/semester
     :veranstaltung/studiengang
+    :veranstaltung/kurskategorie
     :veranstaltung/lehrpersonen
     :veranstaltung/vzeiten]))
 

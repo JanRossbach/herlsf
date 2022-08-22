@@ -8,13 +8,13 @@
    [clojure.data.xml :refer [parse]]
    [herlsf.core :as gui]
    [herlsf.schema :as db]
-   [herlsf.xml :refer [xml->entities xmlmap->map]]
+   [herlsf.xml :refer [xml->entities xmlmap->map resolve-v-verzeichnis] :as xml]
    [cljfx.api :as fx]))
 
 (def db-cfg {:store {:backend :file
                      :path "resources/db/hike"}})
 
-(def xml-src (slurp "/home/jan/School/GeheimeDaten.xml"))
+(def xml-src (slurp "GeheimeDaten.xml"))
 
 (defn reset-db-from-xml [xml-src]
   (let [entities (xml->entities xml-src)]
@@ -31,16 +31,62 @@
 
   (def conn (d/connect db-cfg))
 
+  (d/transact conn db/schema)
+
   (def data (xmlmap->map (parse (java.io.StringReader. (clojure.string/replace xml-src #"\n[ ]*|\r" "")))))
 
+  (s/select [(xml/ueebene "2") :Vorlesung :Ueberschrift s/FIRST :UeBez] data)
+
+  (pprint (s/transform [(xml/ueebene "2")] add-bereich data))
+
+  (resolve-v-verzeichnis data)
+
+  (xml/add-ebenen-data-to-veranstaltungen data "1")
+
+  ()
+
+  (pprint (->> data
+               (s/transform [(xml/ueebene "1")] xml/add-studiengang)
+               (s/transform [(xml/ueebene "2")] xml/add-studiengang)
+               (s/transform [(xml/ueebene "2")] xml/add-kurskategorie)))
+
+  (def v (second (s/select [(s/walker #(= "2" (:ueebene (:attrs %))))] data)))
+
+  (count (s/select [(s/walker :Veranstaltung) :Veranstaltung] v))
+
+  (map :attrs (s/select [(s/walker :Vorlesung)] data))
+
   (def entities (xml->entities xml-src))
+
+  (pprint entities)
 
 ;; REPL
 
   ;; Start the App
   (def renderer (:renderer (gui/run-app (d/connect db-cfg) true)))
+  (d/q '[:find ?kk
+         :where
+         [_ :veranstaltung/kurskategorie ?kk]]
+       @conn)
 
-  ;; Redraw the app after changing code
+  (d/q '[:find ?kk
+         :where
+         [?id :veranstaltung/name "Analysis I"]
+         [?id :veranstaltung/kurskategorie ?kk]]
+       @conn)
+
+  (pprint (d/q '[:find ?name ?kk
+                 :where
+                 [?id :veranstaltung/name ?name]
+                 [?id :veranstaltung/kurskategorie ?kk]]
+               @conn))
+
+  (pprint (d/q '[:find ?kk
+                 :where
+                 [_ :veranstaltung/kurskategorie ?kk]]
+               @conn))
+
+;; Redraw the app after changing code
   (renderer)
 
   ;; to iterate during development on style, add a watch to var that updates style in app

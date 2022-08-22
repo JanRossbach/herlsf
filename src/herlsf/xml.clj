@@ -11,11 +11,14 @@
   to a map that uses the tag as key and the content as value. Attributes are ignored."
   [xmlmap]
   (if (map? xmlmap)
-    (let [{:keys [tag content]} xmlmap
-          content-map (map xmlmap->map content)]
-      {tag (if (= 1 (count content-map)) (first content-map) (if (empty? content-map)
-                                                               nil
-                                                               content-map))})
+    (let [{:keys [tag attrs content]} xmlmap
+          content-map (map xmlmap->map content)
+          res {tag (if (= 1 (count content-map)) (first content-map) (if (empty? content-map)
+                                                                       nil
+                                                                       content-map))}]
+      (if (seq attrs)
+        (assoc res :attrs attrs)
+        res))
     xmlmap))
 
 (defn veranstaltung?
@@ -106,19 +109,34 @@
          (:VDTyp v) (assoc a :veranstaltung/typ (:VDTyp v))
          (:VZSemester v) (assoc a :veranstaltung/semester (:VZSemester v))
          (:studiengang v) (assoc a :veranstaltung/studiengang (:studiengang v))
+         (:kurskategorie v) (assoc a :veranstaltung/kurskategorie (:kurskategorie v))
          (:VZLehrPerson v) (assoc a :veranstaltung/lehrpersonen (vec (conj (:veranstaltung/lehrpersonen v)
-                                                                              (format-data v))))
+                                                                           (format-data v))))
          (:VZeit v) (assoc a :veranstaltung/vzeiten (vec (conj (:veranstaltung/vzeiten v)
-                                                                  (format-data v))))
+                                                               (format-data v))))
          :else a))
      {:veranstaltung/lehrpersonen []
       :veranstaltung/vzeiten []}
      content)))
 
+
+(defn add-elem-to-all-sub-veranstaltungen
+  [vorlesung elem]
+  (s/setval [(s/walker :Veranstaltung) :Veranstaltung s/BEFORE-ELEM]
+            elem
+            vorlesung))
+
+(defn add-kurskategorie
+  [vorlesung]
+  (let [[kurskategorie] (s/select [(s/walker :UeBez) :UeBez] vorlesung)]
+    (add-elem-to-all-sub-veranstaltungen vorlesung {:kurskategorie kurskategorie})))
+
 (defn add-studiengang
   [vorlesung]
-  (let [name (first (s/select [(s/walker :UeBez) :UeBez] vorlesung))]
-    (s/setval [(s/walker :Veranstaltung) :Veranstaltung s/BEFORE-ELEM] {:studiengang name} vorlesung)))
+  (let [[studiengang] (s/select [(s/walker :UeBez) :UeBez] vorlesung)]
+    (add-elem-to-all-sub-veranstaltungen vorlesung {:studiengang studiengang})))
+
+(def ueebene (fn [e] (s/walker #(= e (:ueebene (:attrs %))))))
 
 (defn xml->entities
   "Takes an xml string and returns a collection of
@@ -130,8 +148,9 @@
         data (->> reader
                   parse
                   xmlmap->map
-                  (s/transform (s/walker :Vorlesung) add-studiengang)
-                  (s/transform [(s/walker :Vorlesung) (s/walker :Vorlesung)] add-studiengang)
+                  (s/transform [(ueebene "1")] add-studiengang)
+                  (s/transform [(ueebene "2")] add-studiengang)
+                  (s/transform [(ueebene "2")] add-kurskategorie)
                   (s/setval [(s/walker :VeranstaltungErsteEbene) :VeranstaltungErsteEbene s/BEFORE-ELEM]
                             {:studiengang "Erste Ebene"})
                   (s/transform (s/walker #(= % :VeranstaltungErsteEbene)) (fn [_] :Veranstaltung)))
