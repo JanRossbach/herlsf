@@ -52,7 +52,7 @@
                   :where
                   [?v :veranstaltung/name ?n]
                   [?w :veranstaltung/name ?m]
-                  [(not= ?v ?w)]
+                  [(< ?v ?w)]
                   (or-join [?n ?m ?search-term]
                            [(re-matches ?search-term ?n)]
                            [(re-matches ?search-term ?m)])
@@ -62,8 +62,10 @@
                   [?zeit2 :vzeit/wochentag ?tag]
                   [?v :veranstaltung/vzeiten ?zeit]
                   [?w :veranstaltung/vzeiten ?zeit2]
-                  [?v :veranstaltung/studiengang ?s]
-                  [?w :veranstaltung/studiengang ?s]]
+                  [?v :veranstaltung/kurskategorie ?b]
+                  [?w :veranstaltung/kurskategorie ?b]
+                  [?v :veranstaltung/typ "Vorlesung Präsenz"]
+                  [?w :veranstaltung/typ "Vorlesung Präsenz"]]
                 search-regex)))
 
 (defn active-view
