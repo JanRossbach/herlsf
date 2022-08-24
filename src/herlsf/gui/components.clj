@@ -7,9 +7,29 @@
 
 ;; Namespace of reusable components
 
-;; Navbar
 
-(def quick-search-button-style ["btn" "btn-info" "btn-sm"])
+(defn button-with-confirmation-dialog
+  [{:keys [fx/context
+           state-id
+           on-confirmed
+           button
+           dialog-pane]}]
+  {:fx/type fx/ext-let-refs
+   :refs {::dialog {:fx/type :dialog
+                    :showing (fx/sub-val context get-in [:comp-state state-id :showing] false)
+                    :on-hidden {:event/type ::events/on-confirmation-dialog-hidden
+                                :state-id state-id
+                                :on-confirmed on-confirmed}
+                    :dialog-pane (merge {:fx/type :dialog-pane
+                                         :button-types [:cancel :ok]}
+                                        dialog-pane)}}
+   :desc (merge {:fx/type :button
+                 :on-action {:event/type ::events/show-confirmation
+                             :state-id state-id}}
+                button)})
+
+
+;; Navbar
 
 (defmulti quick-search-bar identity)
 (defmethod quick-search-bar :default
@@ -97,4 +117,58 @@
                    :panel panel-name}}]}))
 
 
-;;
+;; CREATE
+
+
+;; READ
+
+(defn- lehrperson->string
+  [{:keys [:lehrperson/name :lehrperson/vorname]}]
+  (str vorname " " name))
+
+(defn veranstaltung-details
+  [panel-name id]
+  (fn [{:keys [fx/context]}]
+    (let [v (fx/sub-ctx context subs/veranstaltung-details id)]
+      {:fx/type :v-box
+       :spacing 10
+       :padding 10
+       :children [{:fx/type navbar
+                   :panel-name panel-name
+                   :search false}
+                  {:fx/type :label
+                   :style-class "h2"
+                   :text (str (:veranstaltung/name v))}
+                  {:fx/type :label
+                   :text (str "Verantwortliche Personen: "
+                              (apply str (map lehrperson->string
+                                              (:veranstaltung/lehrpersonen v))))}
+                  {:fx/type :label
+                   :text (str "Studiengang: " (:veranstaltung/studiengang v))}
+                  {:fx/type :label
+                   :text (str "SWS: " (:veranstaltung/SWS v))}
+                  {:fx/type :label
+                   :text (str "Teilnehmergrenze: " (if (:veranstaltung/max-teilnemher v)
+                                                     (:veranstaltung/max-teilnehmer v)
+                                                     "Keine"))}
+                  {:fx/type :label
+                   :text (str "Veranstaltungstyp: " (:veranstaltung/typ v))}
+                  {:fx/type :label
+                   :text (if (:veranstaltung/ECTS v)
+                           (str "ECTS: " (:veranstaltung/ECTS v))
+                           "")}]})))
+
+;; Update
+
+;; Delete
+
+
+(defn delete-button
+  [{:keys [state-id entity-id]}]
+  {:fx/type button-with-confirmation-dialog
+   :state-id state-id
+   :dialog-pane {:content-text "Wirklich löschen?"}
+   :button {:text "Delete"
+            :style-class ["btn" "btn-danger"]}
+   :on-confirmed {:event/type ::events/delete-entity
+                  :entity-id entity-id}})

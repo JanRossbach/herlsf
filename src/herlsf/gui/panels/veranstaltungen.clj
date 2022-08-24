@@ -39,41 +39,10 @@
                                           :text (str name)})}
               :items (fx/sub-ctx context subs/veranstaltungen-filtered search-filter)}}]}))
 
-(defn lehrperson->string
-  [{:keys [:lehrperson/name :lehrperson/vorname]}]
-  (str vorname " " name))
 
 (defmethod active-panel :details
-  [[_ id]]
-  (fn [{:keys [fx/context]}]
-    (let [v (fx/sub-ctx context subs/veranstaltung-details id)]
-      {:fx/type :v-box
-       :spacing 10
-       :padding 10
-       :children [{:fx/type util/navbar
-                   :panel-name panel-name
-                   :search false}
-                  {:fx/type :label
-                   :style-class "h4"
-                   :text (str (:veranstaltung/name v))}
-                  {:fx/type :label
-                   :text (str "Verantwortliche Personen: " (apply str (map lehrperson->string
-                                                                           (:veranstaltung/lehrpersonen v))))}
-                  {:fx/type :label
-                   :text (str "Studiengang: " (:veranstaltung/studiengang v))}
-                  {:fx/type :label
-                   :text (str "SWS: " (:veranstaltung/SWS v))}
-                  {:fx/type :label
-                   :text (str "Teilnehmergrenze: " (if (:veranstaltung/max-teilnemher v)
-                                                     (:veranstaltung/max-teilnehmer v)
-                                                     "Keine"))}
-                  {:fx/type :label
-                   :text (str "Veranstaltungstyp: " (:veranstaltung/typ v))}
-                  {:fx/type :label
-                   :text (if (:veranstaltung/ECTS v)
-                           (str "ECTS: " (:veranstaltung/ECTS v))
-                           "")}]})))
-
+  [[_ [id]]]
+  (util/veranstaltung-details panel-name id))
 
 (defn root [{:keys [fx/context]}]
   (let [active-view (fx/sub-ctx context subs/active-view panel-name)]

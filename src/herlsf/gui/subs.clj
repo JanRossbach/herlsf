@@ -47,7 +47,7 @@
   [context {:keys [search-term]}]
   (let [search-regex (re-pattern (str ".*" search-term ".*"))]
     (fx/sub-ctx context query-sub
-                '[:find ?zeit ?n ?zeit2 ?m
+                '[:find ?zeit ?n ?b ?m ?v ?w
                   :in $ ?search-term
                   :where
                   [?v :veranstaltung/name ?n]

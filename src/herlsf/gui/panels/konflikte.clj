@@ -20,11 +20,12 @@
 
 (defn konflikt->style-class
   [tuple]
-  (case (db/konflikt->danger-class tuple)
-    :danger "bg-danger"
-    :warning "bg-warning"
-    :normal "h4"
-    ))
+  "h4"
+  ;; (case (db/konflikt->danger-class tuple)
+  ;;   :danger "bg-danger"
+  ;;   :warning "bg-warning"
+  ;;   :normal "h4"
+    )
 
 (defmethod active-panel :home
   [[_ search-filter]]
@@ -50,9 +51,9 @@
               :items (fx/sub-ctx context subs/conflicts-filtered search-filter)}}]}))
 
 (defmethod active-panel :details
-  [[_ id]]
+  [[_ [vz-id1 kursname1 kategorie kursname2 kursid1 kursid2]]]
   (fn [{:keys [fx/context]}]
-    (let [r (fx/sub-ctx context subs/pull-all id)]
+    (let [info (fx/sub-ctx context subs/pull-all vz-id1)]
       {:fx/type :v-box
        :spacing 10
        :padding 10
@@ -60,7 +61,37 @@
                    :panel-name panel-name
                    :search false}
                   {:fx/type :label
-                   :text (str r)}]})))
+                   :text "Konflikt ! :/"
+                   :style-class ["h2"]}
+                  {:fx/type :label
+                   :text (str "Am " (:vzeit/wochentag info) " um "
+                              (:vzeit/start-zeit info) " bis " (:vzeit/end-zeit info)
+                              " finden die folgenden Kurse statt."
+                              " Beide sind in der Kategorie" )
+                   :style-class ["h4"]}
+                  {:fx/type :label
+                   :text (str kategorie)
+                   :style-class ["h4"]}
+                  {:fx/type :h-box
+                   :spacing 10
+                   :padding 10
+                   :children [{:fx/type :button
+                               :style-class ["btn" "btn-info" "btn-sm"]
+                               :text kursname1
+                               :on-action {:event/type ::events/navigate
+                                           :panel panel-name
+                                           :new-view [:kurs-details kursid1]}}
+                              {:fx/type :button
+                               :style-class ["btn" "btn-info" "btn-sm"]
+                               :text kursname2
+                               :on-action {:event/type ::events/navigate
+                                           :panel panel-name
+                                           :new-view [:kurs-details kursid2]}}]}]})))
+
+
+(defmethod active-panel :kurs-details
+  [[_ id]]
+  (util/veranstaltung-details panel-name id))
 
 (defn table-view [_]
   {:fx/type :table-view

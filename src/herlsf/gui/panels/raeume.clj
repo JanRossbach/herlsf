@@ -79,7 +79,7 @@
                  :v-zeiten v-zeiten}]}))
 
 (defmethod active-panel :details
-  [[_ id]]
+  [[_ [id]]]
   (fn [{:keys [fx/context]}]
     (let [r (fx/sub-ctx context subs/pull-all id)
           v-zeiten (fx/sub-ctx context subs/v-zeiten id)]
@@ -91,7 +91,11 @@
                    :search false}
                   {:fx/type raum-view
                    :raum r
-                   :v-zeiten v-zeiten}]})))
+                   :v-zeiten v-zeiten}
+                  {:fx/type util/delete-button
+                   :state-id ::delete-raum-button
+                   :entity-id id}
+                  ]})))
 
 (defn table-view [_]
   {:fx/type :table-view

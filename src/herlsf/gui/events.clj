@@ -5,7 +5,8 @@
   (:import [javafx.stage FileChooser]
            [javafx.event ActionEvent]
            [javafx.scene Node]
-           [javafx.scene.input KeyEvent KeyCode]))
+           [javafx.scene.input KeyEvent KeyCode]
+           [javafx.scene.control DialogEvent Dialog ButtonBar$ButtonData ButtonType]))
 
 
 (defmulti event-handler :event/type)
@@ -35,11 +36,9 @@
 
 (defmethod event-handler ::navigate-list
   [{:keys [panel fx/event]}]
-  (let [[id _] event
-        new-view [:details id]]
-    {:dispatch {:event/type ::navigate
-                :panel panel
-                :new-view new-view}}))
+  {:dispatch {:event/type ::navigate
+              :panel panel
+              :new-view [:details event]}})
 
 (defmethod event-handler ::navigate-back
   [{:keys [fx/context panel]}]
@@ -95,10 +94,24 @@
                 :panel panel
                 :new-view [:home new-filter]}}))
 
+(defmethod event-handler ::delete-entity
+  [{:keys [entity-id]}]
+  (println "Hello " entity-id)
+  {:transact [[:db/retractEntity entity-id]]})
 
-;; (defmethod event-handler ::reset-panel
-;;   [{:keys [fx/context panel]}]
-;;   {:context (fx/swap-context
-;;              context
-;;              (fn [c]
-;;                (assoc-in c [:panels panel] (herlsf.core/initial-state))))})
+
+(defmethod event-handler ::show-confirmation
+  [{:keys [fx/context state-id]}]
+  (println context)
+  {:context (fx/swap-context context assoc-in [:comp-state state-id :showing] true)})
+
+(defmethod event-handler ::on-confirmation-dialog-hidden
+  [{:keys [fx/context ^DialogEvent fx/event state-id on-confirmed]}]
+  (println "Hello")
+  (condp = (.getButtonData ^ButtonType (.getResult ^Dialog (.getSource event)))
+    ButtonBar$ButtonData/CANCEL_CLOSE
+    {:context (fx/swap-context context assoc-in [:comp-state state-id :showing] false)}
+
+    ButtonBar$ButtonData/OK_DONE
+    {:context (fx/swap-context context assoc-in [:comp-state state-id :showing] false)
+     :dispatch on-confirmed}))
