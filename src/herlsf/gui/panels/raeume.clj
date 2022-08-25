@@ -5,7 +5,6 @@
    [herlsf.gui.events :as events]
    [herlsf.gui.components :as util]
    [cljfx.ext.list-view :as list-view]
-   [com.rpl.specter :as s]
    [clojure.string :as string]))
 
 (def ^:const panel-name :raeume)

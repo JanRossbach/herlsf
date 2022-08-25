@@ -31,14 +31,31 @@
                :on-selected-item-changed {:event/type ::events/navigate-list
                                           :panel panel-name}}
        :desc {:fx/type :list-view
-              :min-height 960
+              :min-height 850
               :cell-factory {:fx/cell-type :list-cell
                              :padding 10
                              :describe (fn [[_ name]]
                                          {:style-class ["h4"]
                                           :text (str name)})}
-              :items (fx/sub-ctx context subs/veranstaltungen-filtered search-filter)}}]}))
+              :items (fx/sub-ctx context subs/veranstaltungen-filtered search-filter)}}
+      {:fx/type util/create-button
+       :panel-name panel-name}]}))
 
+(defmethod active-panel :create
+  [_]
+  (fn [_]
+    {:fx/type :v-box
+     :spacing 10
+     :padding 10
+     :children
+     [{:fx/type util/navbar
+       :panel-name panel-name
+       :search false}
+      {:fx/type util/create-veranstaltung-form
+       :panel-name panel-name
+       :state-id ::create-v-form}
+      {:fx/type util/submit-button
+       :state-id ::create-v-form}]}))
 
 (defmethod active-panel :details
   [[_ [id]]]

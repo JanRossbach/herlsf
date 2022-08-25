@@ -96,13 +96,14 @@
 
 (defmethod event-handler ::delete-entity
   [{:keys [entity-id]}]
-  (println "Hello " entity-id)
   {:transact [[:db/retractEntity entity-id]]})
 
+(defmethod event-handler ::set-comp-state-by-event
+  [{:keys [path fx/context fx/event]}]
+  {:context (fx/swap-context context assoc-in path event)})
 
 (defmethod event-handler ::show-confirmation
   [{:keys [fx/context state-id]}]
-  (println context)
   {:context (fx/swap-context context assoc-in [:comp-state state-id :showing] true)})
 
 (defmethod event-handler ::on-confirmation-dialog-hidden

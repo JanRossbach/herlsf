@@ -16,7 +16,8 @@
            dialog-pane]}]
   {:fx/type fx/ext-let-refs
    :refs {::dialog {:fx/type :dialog
-                    :showing (fx/sub-val context get-in [:comp-state state-id :showing] false)
+                    :showing
+                    (fx/sub-val context get-in [:comp-state state-id :showing] false)
                     :on-hidden {:event/type ::events/on-confirmation-dialog-hidden
                                 :state-id state-id
                                 :on-confirmed on-confirmed}
@@ -119,6 +120,77 @@
 
 ;; CREATE
 
+(defn create-button
+  [{:keys [panel-name]}]
+  {:fx/type :button
+   :style-class ["btn" "btn-success"]
+   :text "Neu"
+   :on-action {:event/type ::events/navigate
+               :panel panel-name
+               :new-view [:create]}})
+
+(defn submit-button
+  [{:keys [fx/context state-id]}]
+  (let [state (fx/sub-val context get-in [:comp-state state-id] {})]
+    {:fx/type button-with-confirmation-dialog
+     :dialog-pane {:content-text "Wirklich erstellen?"}
+     :state-id ::submit-confirmation-dialog
+     :button {:text "Bestätigen"
+              :style-class ["btn" "btn-success" "btn-lg"]}
+     :on-confirmed {:event/type ::events/create-entity
+                    :state state}}))
+
+(defn text-input
+  [{:keys [label state-id fx/context]}]
+  (let [path [:comp-state state-id (keyword label)]
+        value (fx/sub-val context get-in path "")]
+    {:fx/type :v-box
+     :children
+     [{:fx/type :label
+       :text label}
+      {:fx/type :text-field
+       :text value
+       :on-text-changed {:event/type ::events/set-comp-state-by-event
+                         :path path}}]}))
+
+
+(defn create-veranstaltung-form
+  [{:keys [state-id]}]
+  {:fx/type :v-box
+   :spacing 10
+   :padding 10
+   :style-class ["container"]
+   :children
+   [{:fx/type text-input
+     :label "Name"
+     :state-id state-id}
+    {:fx/type text-input
+     :label "Typ"
+     :state-id state-id}
+    {:fx/type text-input
+     :label "SWS"
+     :state-id state-id}
+    {:fx/type text-input
+     :label "ECTS"
+     :state-id state-id}
+    {:fx/type text-input
+     :label "Studiengang"
+     :state-id state-id}
+    {:fx/type text-input
+     :label "Kategorie"
+     :state-id state-id}]})
+
+(defn create-lehrperson-form
+  []
+  )
+
+(defn create-vzeit-form
+  []
+  )
+
+(defn create-raum-form
+  []
+  )
 
 ;; READ
 
@@ -161,7 +233,6 @@
 ;; Update
 
 ;; Delete
-
 
 (defn delete-button
   [{:keys [state-id entity-id]}]

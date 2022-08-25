@@ -8,7 +8,7 @@
    [clojure.data.xml :refer [parse]]
    [herlsf.core :as gui]
    [herlsf.schema :as db]
-   [herlsf.xml :refer [xml->entities xmlmap->map resolve-v-verzeichnis] :as xml]
+   [herlsf.xml :refer [xml->entities xmlmap->map] :as xml]
    [cljfx.api :as fx]))
 
 (def db-cfg {:store {:backend :file
@@ -26,6 +26,11 @@
 
 (comment
 
+  ;; Start the App
+  (def renderer (:renderer (gui/run-app (d/connect db-cfg) true)))
+
+  (renderer)
+
 ;; RESET DB
   (reset-db-from-xml xml-src)
 
@@ -36,14 +41,6 @@
   (def data (xmlmap->map (parse (java.io.StringReader. (clojure.string/replace xml-src #"\n[ ]*|\r" "")))))
 
   (s/select [(xml/ueebene "2") :Vorlesung :Ueberschrift s/FIRST :UeBez] data)
-
-  (pprint (s/transform [(xml/ueebene "2")] add-bereich data))
-
-  (resolve-v-verzeichnis data)
-
-  (xml/add-ebenen-data-to-veranstaltungen data "1")
-
-  ()
 
   (pprint (->> data
                (s/transform [(xml/ueebene "1")] xml/add-studiengang)
@@ -62,8 +59,13 @@
 
 ;; REPL
 
-  ;; Start the App
-  (def renderer (:renderer (gui/run-app (d/connect db-cfg) true)))
+  (d/q '[:find ?name
+         :where
+         [60 :veranstaltung/name ?name]]
+       @conn)
+
+  (d/transact conn [[:db/retractEntity 60]])
+
   (d/q '[:find ?kk
          :where
          [_ :veranstaltung/kurskategorie ?kk]]
@@ -81,11 +83,6 @@
                  [?id :veranstaltung/kurskategorie ?kk]]
                @conn))
 
-  (pprint (d/q '[:find ?kk
-                 :where
-                 [_ :veranstaltung/kurskategorie ?kk]]
-               @conn))
-
 ;; Redraw the app after changing code
   (renderer)
 
@@ -95,20 +92,36 @@
   ;; ... and remove it when you are done
   (remove-watch #'styles/style :refresh-app)
 
-  (count (d/q '[:find ?n ?m ?time ?tag ?s
-                :where
-                [?zeit :vzeit/start-zeit ?time]
-                [?zeit2 :vzeit/start-zeit ?time]
-                [?zeit :vzeit/wochentag ?tag]
-                [?zeit2 :vzeit/wochentag ?tag]
-                [?v :veranstaltung/vzeiten ?zeit]
-                [?w :veranstaltung/vzeiten ?zeit2]
-                [(not= ?v ?w)]
-                [?v :veranstaltung/studiengang ?s]
-                [?w :veranstaltung/studiengang ?s]
-                [?v :veranstaltung/name ?n]
-                [?w :veranstaltung/name ?m]]
-              @conn))
+  (d/q '[:find ?zeit ?n ?zeit2 ?m ?s
+         :where
+         [?v :veranstaltung/name ?n]
+         [?w :veranstaltung/name ?m]
+         [(< ?v ?w)]
+         ;; (or-join [?n ?m ?search-term]
+         ;;          [(re-matches ?search-term ?n)]
+         ;;          [(re-matches ?search-term ?m)])
+         [?zeit :vzeit/start-zeit ?time]
+         [?zeit2 :vzeit/start-zeit ?time]
+         [?zeit :vzeit/wochentag ?tag]
+         [?zeit2 :vzeit/wochentag ?tag]
+         [?v :veranstaltung/vzeiten ?zeit]
+         [?w :veranstaltung/vzeiten ?zeit2]
+         [?v :veranstaltung/typ ?s]
+         [?w :veranstaltung/typ ?s]
+         [?v :veranstaltung/kurskategorie ?b]
+         [?w :veranstaltung/kurskategorie ?b]]
+       @conn)
+
+  (d/q '[:find ?n ?m
+         :where
+         [?v :veranstaltung/name ?n]
+         [?w :veranstaltung/name ?m]
+         [(< (count ?n) (count ?m))]]
+       @conn)
+
+  (< (count "Hello") (count "Worldlökasjdf"))
+
+  (re-matches #".*KfW.*" "KfW, Kreditanstalt f. Wiederaufbau" )
 
   (pprint (d/pull
            @conn
