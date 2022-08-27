@@ -138,7 +138,7 @@
      :button {:text "Bestätigen"
               :style-class ["btn" "btn-success" "btn-lg"]}
      :on-confirmed {:event/type ::events/create-entity
-                    :state state}}))
+                    :state state}})) ;; state will be a map from Form label to entered value.
 
 (defn text-input
   [{:keys [label state-id fx/context]}]
@@ -153,9 +153,13 @@
        :on-text-changed {:event/type ::events/set-comp-state-by-event
                          :path path}}]}))
 
+(defn dropdown-input
+  [])
 
-(defn create-veranstaltung-form
-  [{:keys [state-id]}]
+;; Creation Forms
+
+(defn veranstaltung-form
+  [{:keys [state-id fx/context]}]
   {:fx/type :v-box
    :spacing 10
    :padding 10
@@ -199,17 +203,12 @@
   (str vorname " " name))
 
 (defn veranstaltung-details
-  [panel-name id]
-  (fn [{:keys [fx/context]}]
+  [{:keys [fx/context id]}]
     (let [v (fx/sub-ctx context subs/veranstaltung-details id)]
       {:fx/type :v-box
        :spacing 10
-       :padding 10
-       :children [{:fx/type navbar
-                   :panel-name panel-name
-                   :search false}
-                  {:fx/type :label
-                   :style-class "h2"
+       :children [{:fx/type :label
+                   :style-class "h3"
                    :text (str (:veranstaltung/name v))}
                   {:fx/type :label
                    :text (str "Verantwortliche Personen: "
@@ -228,18 +227,30 @@
                   {:fx/type :label
                    :text (if (:veranstaltung/ECTS v)
                            (str "ECTS: " (:veranstaltung/ECTS v))
-                           "")}]})))
+                           "")}]}))
 
 ;; Update
+
+(defn edit-button
+  [{:keys [entity-id panel-name fx/context]}]
+  {:fx/type :button
+   :style-class ["btn" "btn-primary"]
+   :text "Bearbeiten"
+   :on-action {:event/type ::events/navigate-with-component-state
+               :panel panel-name
+               :state-id (keyword (str "edit-form-" entity-id))
+               :state (fx/sub-ctx context subs/form-state entity-id)
+               :new-view [:edit entity-id]}})
 
 ;; Delete
 
 (defn delete-button
-  [{:keys [state-id entity-id]}]
-  {:fx/type button-with-confirmation-dialog
-   :state-id state-id
-   :dialog-pane {:content-text "Wirklich löschen?"}
-   :button {:text "Delete"
-            :style-class ["btn" "btn-danger"]}
-   :on-confirmed {:event/type ::events/delete-entity
-                  :entity-id entity-id}})
+  [{:keys [entity-id]}]
+  (let [state-id (keyword (str "delete-button-" entity-id))]
+    {:fx/type button-with-confirmation-dialog
+     :state-id state-id
+     :dialog-pane {:content-text "Wirklich löschen?"}
+     :button {:text "Delete"
+              :style-class ["btn" "btn-danger"]}
+     :on-confirmed {:event/type ::events/delete-entity
+                    :entity-id entity-id}}))

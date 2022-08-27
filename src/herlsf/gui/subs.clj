@@ -119,3 +119,12 @@
   (fx/sub-ctx context query-sub '[:find [?stg ...]
                                   :where
                                   [_ :veranstaltung/studiengang ?stg]]))
+
+(defn form-state
+  [context entity-id]
+  {:Name "A"
+   :Typ "B"
+   :SWS "C"
+   :ECTS "D"
+   :studiengang "E"
+   :Kategorie "F"})

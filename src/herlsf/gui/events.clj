@@ -23,8 +23,9 @@
     (when-let [file (.showOpenDialog chooser window)]
       {:xml (slurp file)})))
 
+
 (defmethod event-handler ::navigate
-  [{:keys [:fx/context panel new-view]}]
+  [{:keys [fx/context panel new-view]}]
   {:context (fx/swap-context
              context
              (fn [c]
@@ -33,6 +34,14 @@
                             (assoc old-val
                                    :history (conj history active-view)
                                    :active-view new-view)))))})
+
+
+(defmethod event-handler ::navigate-with-component-state
+  [{:keys [fx/context panel new-view state state-id]}]
+  {:context (fx/swap-context context assoc-in [:comp-state state-id] state)
+   :dispatch {:event/type ::navigate
+              :panel panel
+              :new-view new-view}})
 
 (defmethod event-handler ::navigate-list
   [{:keys [panel fx/event]}]
@@ -108,7 +117,6 @@
 
 (defmethod event-handler ::on-confirmation-dialog-hidden
   [{:keys [fx/context ^DialogEvent fx/event state-id on-confirmed]}]
-  (println "Hello")
   (condp = (.getButtonData ^ButtonType (.getResult ^Dialog (.getSource event)))
     ButtonBar$ButtonData/CANCEL_CLOSE
     {:context (fx/swap-context context assoc-in [:comp-state state-id :showing] false)}

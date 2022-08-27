@@ -19,7 +19,7 @@
   (str name1 " || " name2))
 
 (defn konflikt->style-class
-  [tuple]
+  [_]
   "h4"
   ;; (case (db/konflikt->danger-class tuple)
   ;;   :danger "bg-danger"
@@ -76,13 +76,13 @@
                    :spacing 10
                    :padding 10
                    :children [{:fx/type :button
-                               :style-class ["btn" "btn-info" "btn-sm"]
+                               :style-class ["btn" "btn-default" "btn-sm"]
                                :text kursname1
                                :on-action {:event/type ::events/navigate
                                            :panel panel-name
                                            :new-view [:kurs-details kursid1]}}
                               {:fx/type :button
-                               :style-class ["btn" "btn-info" "btn-sm"]
+                               :style-class ["btn" "btn-default" "btn-sm"]
                                :text kursname2
                                :on-action {:event/type ::events/navigate
                                            :panel panel-name
@@ -91,7 +91,23 @@
 
 (defmethod active-panel :kurs-details
   [[_ id]]
-  (util/veranstaltung-details panel-name id))
+  (fn [_]
+    {:fx/type :v-box
+     :spacing 10
+     :padding 10
+     :children
+     [{:fx/type util/navbar
+       :panel-name panel-name
+       :search false}
+      {:fx/type util/veranstaltung-details
+       :id id}
+      {:fx/type :h-box
+       :spacing 10
+       :children [{:fx/type util/edit-button
+                   :panel-name panel-name
+                   :entity-id id}
+                  {:fx/type util/delete-button
+                   :entity-id id}]}]}))
 
 (defn table-view [_]
   {:fx/type :table-view

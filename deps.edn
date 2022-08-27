@@ -14,7 +14,7 @@
          :jvm-opts ["-Djdk.gtk.version=2"]}
   :uberjar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.303"}}
             :exec-fn hf.depstar/uberjar
-            :exec-args {:aot true
+            :exec-args {:aot false
                         :jar "herlsf.jar"
                         :main-class herlsf.core}}
   :dev {:extra-paths ["test"]}

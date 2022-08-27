@@ -51,7 +51,7 @@
                       (label kv)))}))
 
 (defn vz-list
-  [{:keys [fx/context v-zeiten]}]
+  [{:keys [v-zeiten]}]
   {:fx/type :list-view
    :min-height 200
    :cell-factory {:fx/cell-type :list-cell :padding 10
