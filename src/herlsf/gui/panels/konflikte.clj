@@ -88,26 +88,19 @@
                                            :panel panel-name
                                            :new-view [:kurs-details kursid2]}}]}]})))
 
-
 (defmethod active-panel :kurs-details
   [[_ id]]
   (fn [_]
-    {:fx/type :v-box
-     :spacing 10
-     :padding 10
-     :children
-     [{:fx/type util/navbar
-       :panel-name panel-name
-       :search false}
-      {:fx/type util/veranstaltung-details
-       :id id}
-      {:fx/type :h-box
-       :spacing 10
-       :children [{:fx/type util/edit-button
-                   :panel-name panel-name
-                   :entity-id id}
-                  {:fx/type util/delete-button
-                   :entity-id id}]}]}))
+    {:fx/type util/v-details-view
+     :panel-name panel-name
+     :entity-id id}))
+
+(defmethod active-panel :edit
+  [[_ id]]
+  (fn [_]
+    {:fx/type util/edit-view
+     :panel-name panel-name
+     :entity-id id}))
 
 (defn table-view [_]
   {:fx/type :table-view

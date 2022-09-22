@@ -2,7 +2,8 @@
   (:require
    [cljfx.api :as fx]
    ;[com.rpl.specter :as s]
-   [datahike.api :as d]))
+   [datahike.api :as d]
+   [herlsf.translation :as translation]))
 
 (defn- query-sub [context query & inputs]
   (apply d/q query (fx/sub-val context :db) inputs))
@@ -122,9 +123,6 @@
 
 (defn form-state
   [context entity-id]
-  {:Name "A"
-   :Typ "B"
-   :SWS "C"
-   :ECTS "D"
-   :studiengang "E"
-   :Kategorie "F"})
+  (let [entity (fx/sub-ctx context pull-all entity-id)
+        comp-state (translation/entity->comp-state entity)]
+    comp-state))

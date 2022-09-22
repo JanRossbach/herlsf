@@ -24,6 +24,8 @@
       (d/transact conn db/schema)
       (d/transact conn entities))))
 
+(def conn (d/connect db-cfg))
+
 (comment
 
   ;; Start the App
@@ -34,7 +36,6 @@
 ;; RESET DB
   (reset-db-from-xml xml-src)
 
-  (def conn (d/connect db-cfg))
 
   (d/transact conn db/schema)
 
@@ -141,6 +142,12 @@
    (re-pattern (str ".*" "Graph" ".*")))
 
   (spit "initial_transaction.edn" entities)
+
+  (d/q '[:find ?id
+         :where
+         [?id :veranstaltung/name _]]
+       @conn)
+
 
   (d/q '[:find [?stg ...]
          :where

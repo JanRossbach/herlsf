@@ -56,9 +56,11 @@
        :desc-fn (fn [_] {:fx/type views/root
                          :showing showing?}))))
 
+(def config (read-string (slurp "resources/config.edn")))
+
 (defn -main []
   (let [db-cfg {:store {:backend :file
-                        :path "resources/db/hike"}}]
+                        :path (:db-location config)}}]
     (if (not (d/database-exists? db-cfg))
       (d/create-database db-cfg)
       nil)

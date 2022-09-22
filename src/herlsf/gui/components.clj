@@ -68,8 +68,7 @@
                                    :panel panel-name}
                  :on-key-pressed {:event/type ::events/search-key-press
                                   :panel panel-name}}
-                {:fx/type (quick-search-bar panel-name)}
-                ]}))
+                {:fx/type (quick-search-bar panel-name)}]}))
 
 (defn back-button
   [panel-name]
@@ -159,7 +158,7 @@
 ;; Creation Forms
 
 (defn veranstaltung-form
-  [{:keys [state-id fx/context]}]
+  [{:keys [state-id]}]
   {:fx/type :v-box
    :spacing 10
    :padding 10
@@ -184,17 +183,14 @@
      :label "Kategorie"
      :state-id state-id}]})
 
-(defn create-lehrperson-form
-  []
-  )
+(defn lehrperson-form
+  [])
 
-(defn create-vzeit-form
-  []
-  )
+(defn vzeit-form
+  [])
 
-(defn create-raum-form
-  []
-  )
+(defn raum-form
+  [])
 
 ;; READ
 
@@ -229,6 +225,7 @@
                            (str "ECTS: " (:veranstaltung/ECTS v))
                            "")}]}))
 
+
 ;; Update
 
 (defn edit-button
@@ -242,6 +239,19 @@
                :state (fx/sub-ctx context subs/form-state entity-id)
                :new-view [:edit entity-id]}})
 
+
+(defn edit-view
+  [{:keys [entity-id panel-name]}]
+  {:fx/type :v-box
+   :spacing 10
+   :padding 10
+   :children
+   [{:fx/type navbar
+     :panel-name panel-name
+     :search false}
+    {:fx/type veranstaltung-form
+     :state-id (keyword (str "edit-form-" entity-id))}]})
+
 ;; Delete
 
 (defn delete-button
@@ -254,3 +264,23 @@
               :style-class ["btn" "btn-danger"]}
      :on-confirmed {:event/type ::events/delete-entity
                     :entity-id entity-id}}))
+
+
+(defn v-details-view
+  [{:keys [panel-name entity-id]}]
+  {:fx/type :v-box
+   :spacing 10
+   :padding 10
+   :children
+   [{:fx/type navbar
+     :panel-name panel-name
+     :search false}
+    {:fx/type veranstaltung-details
+     :id entity-id}
+    {:fx/type :h-box
+     :spacing 10
+     :children [{:fx/type edit-button
+                 :panel-name panel-name
+                 :entity-id entity-id}
+                {:fx/type delete-button
+                 :entity-id entity-id}]}]})
